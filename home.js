@@ -22,10 +22,6 @@ const I18N = {
     ministryTitle: "Ministry Project & Demand",
     cssTitle: "CSS Project & Demand",
     tecTitle: "Total Experience Center Status Report",
-    wgsDesc: "Weekly WGS Digital Transformation 2027 status — meetings, workstreams, Salesforce integration, decisions, risks and actions.",
-    ministryDesc: "Projects and demands for PMO, MOCA, WGS, GSOC, FCSC and the other ministry entities and sectors — with independent search, filters and statistics.",
-    cssDesc: "All projects, MOCASmart releases and demands owned by the CSS sector, with totals computed automatically from the source data.",
-    tecDesc: "Latest Total Experience Center status update. The report link will be added soon.",
     archive: "Weekly Archive",
     archivePh: "Filter by week or date…",
     issued: "Issued",
@@ -49,10 +45,6 @@ const I18N = {
     ministryTitle: "مشاريع وطلبات الوزارة",
     cssTitle: "مشاريع وطلبات CSS",
     tecTitle: "تقرير حالة مركز التجربة الشاملة",
-    wgsDesc: "الحالة الأسبوعية للتحول الرقمي WGS 2027 — الاجتماعات ومسارات العمل وتكامل Salesforce والقرارات والمخاطر والإجراءات.",
-    ministryDesc: "المشاريع والطلبات لجهات وقطاعات الوزارة: PMO وMOCA وWGS وGSOC وFCSC وغيرها — مع بحث وفلاتر وإحصاءات مستقلة.",
-    cssDesc: "جميع المشاريع وإصدارات MOCASmart والطلبات التابعة لقطاع CSS، مع إجماليات تُحتسب تلقائيًا من البيانات المصدر.",
-    tecDesc: "أحدث تحديث لحالة مركز التجربة الشاملة. سيُضاف رابط التقرير قريبًا.",
     archive: "الأرشيف الأسبوعي",
     archivePh: "تصفية حسب الأسبوع أو التاريخ…",
     issued: "صدر في",
@@ -120,7 +112,6 @@ function computePortals() {
       kicker: tr(m.wgsReport.programme),
       date: trDate(lw ? lw.date : m.wgsReport.date),
       overallStatus: lw ? lw.status : m.wgsReport.overallStatus,
-      desc: l.wgsDesc,
       href: lw ? uploadHref(lw) : m.wgsReport.href,
     },
     {
@@ -128,7 +119,6 @@ function computePortals() {
       kicker: tr(m.site.dept),
       date: trDate(ld ? ld.date : m.demandReport.date),
       overallStatus: ld ? ld.status : m.demandReport.overallStatus,
-      desc: l.ministryDesc,
       href: pdHref(m.MINISTRY_DEMAND_HREF),
     },
     {
@@ -136,7 +126,6 @@ function computePortals() {
       kicker: tr(m.site.dept),
       date: trDate(ld ? ld.date : m.demandReport.date),
       overallStatus: ld ? ld.status : m.demandReport.overallStatus,
-      desc: l.cssDesc,
       href: pdHref(m.CSS_DEMAND_HREF),
     },
     {
@@ -146,14 +135,13 @@ function computePortals() {
       kicker: tr(m.site.dept),
       date: trDate(m.site.lastUpdated),
       overallStatus: "Pending",
-      desc: l.tecDesc,
       href: "",
     },
   ];
 
   const others = stored
     .filter((x) => x.type === "other")
-    .map((u) => ({ title: tr(u.title), kicker: tr(m.site.dept), date: trDate(u.date), overallStatus: u.status, desc: tr(u.summary || ""), href: uploadHref(u) }));
+    .map((u) => ({ title: tr(u.title), kicker: tr(m.site.dept), date: trDate(u.date), overallStatus: u.status, href: uploadHref(u) }));
 
   return [...portals, ...others].map((r) => ({
     ...r,
@@ -252,7 +240,6 @@ function renderReports() {
           </div>
           <span class="status-badge" style="background:${esc(r.badge.bg)};color:${esc(r.badge.fg)}"><span class="status-dot" style="background:${esc(r.badge.dot)}"></span>${esc(r.status)}</span>
         </div>
-        <p class="portal-desc">${esc(r.desc)}</p>
         <div class="card-meta"><span><strong>${esc(L().lastUpdated)}:</strong> ${esc(r.date)}</span></div>
         <div class="card-actions">
           ${r.href
