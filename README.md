@@ -11,7 +11,7 @@ The landing page (`index.html`) presents four access portals as clickable cards,
 3. **CSS Project & Demand** — `css-project-demand.html`: items whose Entity / Sector is exactly `CSS`.
 4. **Total Experience Center Status Report** — external card that opens `https://chief-report.onrender.com/#sec-mocasmart` directly (same tab, anchor preserved); it has no internal page.
 
-Also referenced but not yet implemented: `report-viewer.html` (viewer for raw uploaded PDFs) and `admin-upload.html` (admin upload page, linked from the header).
+Supporting pages: `admin-upload.html` (admin upload page, linked from the header — publishes new weekly report versions to `localStorage`, with automatic PDF-to-content extraction when the Claude runtime is available) and `report-viewer.html` (details page for uploaded reports without interactive content).
 
 ## Report-mapping rules (Project & Demand split)
 
@@ -30,6 +30,8 @@ Each P&D portal has its own search, filters (section, entity, status, owner — 
 - `index.html` + `home.js` — landing page: four portal cards, global search across all portals, weekly archive.
 - `ministry-project-demand.html` / `css-project-demand.html` + `pd-report.js` — the two Project & Demand portals (one shared implementation, variant chosen by `<body data-variant>`).
 - `wgs-weekly-status.html` + `wgs-report.js` — the WGS weekly report portal.
+- `admin-upload.html` + `admin.js` — admin upload page: report-type picker, PDF upload, publish/reprocess/delete of uploaded weeks.
+- `report-viewer.html` + `viewer.js` — viewer for uploaded reports (`?id=<upload id>`).
 - `common.js` — shared helpers (escaping, theme, language state, translators, scroll-spy).
 - `report.css` — shared styles for the report portals.
 - `reports-data.js` — unified content model, report-mapping rules, split/flatten helpers, status colors, themes, search index.

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uploaded Weekly Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="report.css">
+<style>
+  :root{--pagew:980px}
+  .viewer-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:12px}
+  .viewer-card h1{margin:0;font-family:var(--font-display);font-size:clamp(22px,5vw,30px);font-weight:700;line-height:1.2}
+  .viewer-meta{font-size:14px;color:var(--mut)}
+  .viewer-meta strong{font-weight:600;color:var(--ink)}
+  .viewer-status{font-size:12px;font-weight:700;border-radius:999px;padding:6px 13px;background:rgba(43,108,176,0.10);color:#2B6CB0;white-space:nowrap}
+  .viewer-summary{margin:0;font-size:14px;line-height:1.65;color:var(--mut)}
+  .no-pdf-card{background:var(--sf);border:1px dashed #C9C2B4;border-radius:18px;padding:34px;text-align:center;color:var(--mut);font-size:14px;line-height:1.6}
+  .not-found-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:34px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript><p style="max-width:980px;margin:0 auto;padding:16px 20px">This page requires JavaScript.</p></noscript>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Weekly Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="report.css">
+<style>
+  :root{--pagew:760px}
+  .form-card{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:18px}
+  .form-card h1{margin:0;font-family:var(--font-display);font-size:26px;font-weight:700}
+  .form-sub{font-size:14px;color:var(--mut);line-height:1.5}
+  .field-label{font-size:13px;font-weight:700;color:var(--ink)}
+  .type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}
+  .type-btn{
+    border:2px solid var(--bd);background:var(--bg);border-radius:14px;padding:14px 16px;
+    display:flex;flex-direction:column;gap:4px;cursor:pointer;font-family:inherit;text-align:start;
+  }
+  .type-btn:hover{border-color:var(--acc)}
+  .type-btn.active{border-color:var(--acc);background:var(--glow)}
+  .type-btn .t-label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink)}
+  .type-btn .t-dot{width:16px;height:16px;border-radius:50%;border:2px solid #C9C2B4;background:transparent;flex-shrink:0}
+  .type-btn.active .t-dot{border-color:var(--acc);background:var(--acc)}
+  .type-btn .t-sub{font-size:12px;color:var(--mut);line-height:1.4;padding-inline-start:24px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field input[type="text"]{border:1px solid var(--bd);border-radius:10px;padding:12px;font-size:14px;background:var(--bg);color:var(--ink);outline-color:var(--acc)}
+  .field input[type="file"]{border:1px dashed #C9C2B4;border-radius:10px;padding:16px;font-size:13px;background:var(--bg);color:var(--mut);cursor:pointer}
+  .file-ok{font-size:12px;font-weight:600;color:var(--acc)}
+  .err-box{font-size:13px;font-weight:600;color:#B83A30;background:rgba(184,58,48,0.10);border-radius:9px;padding:10px 14px}
+  .submit-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .submit-btn{background:var(--acc);color:var(--accInk);border:0;border-radius:12px;padding:14px 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+  .submit-btn:hover{filter:brightness(1.1)}
+  .phase-msg{font-size:13px;font-weight:600;color:var(--mut)}
+  .saved-msg{font-size:13px;font-weight:700;color:#276749}
+  .note{font-size:12px;color:#9AA39E;line-height:1.5}
+  .uploads-title{margin:0;font-family:var(--font-display);font-size:20px;font-weight:700}
+  .upload-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .upload-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .upload-name{font-weight:700;font-size:15px}
+  .upload-meta{font-size:13px;color:var(--mut)}
+  .state-chip{font-size:11px;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap}
+  .state-chip.ok{background:rgba(39,103,73,0.10);color:#276749}
+  .state-chip.pdf{background:rgba(156,106,30,0.12);color:#9C6A1E}
+  .upload-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .reprocess-btn{border:1px solid var(--acc);background:var(--sf);color:var(--acc);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+  .reprocess-btn:hover{background:var(--glow)}
+  .delete-btn{border:0;background:transparent;color:#B83A30;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:2px}
+  .delete-btn:hover{text-decoration:underline}
+  .empty-msg{font-size:14px;color:var(--mut)}
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript><p style="max-width:760px;margin:0 auto;padding:16px 20px">This page requires JavaScript.</p></noscript>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
