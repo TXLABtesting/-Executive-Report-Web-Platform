@@ -15,13 +15,13 @@ const I18N = {
     fCustom: "Report title", fCustomPh: "e.g. Cybersecurity Weekly Brief",
     fPdf: "Original PDF", submit: "Publish report",
     savedMsg: "Published — the report content is now live on the site.",
-    note: "The PDF is read and converted automatically into site content: sections, projects and updates in the file appear in the interactive report pages and the weekly archive. Stored in this browser (localStorage); a real backend keeps the same structure.",
+    note: "Upload one attachment per update — the PDF is read and converted automatically into site content: sections, projects and updates in the file appear in the interactive report pages and the weekly archive. A single Project & Demand upload feeds both the Ministry and CSS portals (the system splits it by Entity / Sector). Stored in this browser (localStorage); a real backend keeps the same structure.",
     phaseAI: "Analyzing the report and building site content…",
     working: "Publishing…",
     parsedOk: "Interactive content", parsedNo: "PDF only — needs processing",
     reprocessBtn: "Process content", reprocessing: "Processing…",
     warnParse: "Published to the archive, but automatic content extraction failed — the report opens as details only",
-    noAI: "automatic extraction is unavailable in this deployment",
+    noAI: "the extraction service is not reachable — configure ANTHROPIC_API_KEY on the server, then use Process content",
     listTitle: "Published uploads", empty: "No uploaded reports yet.",
     downloadPdfS: "PDF", delete: "Delete",
     footer: "Ministry of Cabinet Affairs · Digital Transformation Department · Confidential",
@@ -39,13 +39,13 @@ const I18N = {
     fCustom: "عنوان التقرير", fCustomPh: "مثال: الموجز الأسبوعي للأمن السيبراني",
     fPdf: "ملف PDF الأصلي", submit: "نشر التقرير",
     savedMsg: "تم النشر — محتوى التقرير أصبح ظاهرًا في الموقع.",
-    note: "يُقرأ ملف PDF ويُحوَّل تلقائيًا إلى محتوى في الموقع: الأقسام والمشاريع والتحديثات في الملف تظهر في صفحات التقارير التفاعلية وفي الأرشيف الأسبوعي. يُحفظ في هذا المتصفح (localStorage) وعند الربط بخادم فعلي تبقى البنية نفسها.",
+    note: "ارفع مرفقًا واحدًا لكل تحديث — يُقرأ ملف PDF ويُحوَّل تلقائيًا إلى محتوى في الموقع: الأقسام والمشاريع والتحديثات في الملف تظهر في صفحات التقارير التفاعلية وفي الأرشيف الأسبوعي. رفعة «المشاريع والطلبات» الواحدة تغذي بوابتي الوزارة وCSS معًا (يقسمها النظام حسب الجهة/القطاع). يُحفظ في هذا المتصفح (localStorage) وعند الربط بخادم فعلي تبقى البنية نفسها.",
     phaseAI: "جارٍ تحليل التقرير وبناء محتوى الموقع…",
     working: "جارٍ النشر…",
     parsedOk: "محتوى تفاعلي", parsedNo: "PDF فقط — يحتاج معالجة",
     reprocessBtn: "معالجة المحتوى", reprocessing: "جارٍ المعالجة…",
     warnParse: "نُشر في الأرشيف، لكن تعذّر استخراج المحتوى تلقائيًا — سيُفتح التقرير كتفاصيل فقط",
-    noAI: "الاستخراج التلقائي غير متاح في هذه النسخة المنشورة",
+    noAI: "خدمة الاستخراج غير متاحة — يجب ضبط ANTHROPIC_API_KEY في الخادم ثم استخدام «معالجة المحتوى»",
     listTitle: "التقارير المنشورة", empty: "لا توجد تقارير مرفوعة بعد.",
     downloadPdfS: "PDF", delete: "حذف",
     footer: "وزارة شؤون مجلس الوزراء · إدارة التحول الرقمي · سرّي",
@@ -100,26 +100,48 @@ function persist(uploads) {
 
 const L = () => I18N[state.lang];
 
-// Extract structured site content from the uploaded PDF. Requires the Claude
-// runtime (window.claude.complete); when unavailable, the report is still
-// published with its PDF and can be processed later.
-async function extract(type, pdfData) {
-  if (!(window.claude && typeof window.claude.complete === "function")) {
-    throw new Error(L().noAI);
-  }
+// Read the uploaded PDF into plain text, in the browser.
+async function pdfToText(pdfData) {
   const { PDFParse } = await import("https://cdn.jsdelivr.net/npm/pdf-parse@2.4.5/dist/pdf-parse/web/pdf-parse.es.js");
   PDFParse.setWorker("https://cdn.jsdelivr.net/npm/pdf-parse@2.4.5/dist/pdf-parse/web/pdf.worker.min.mjs");
   const buf = await (await fetch(pdfData)).arrayBuffer();
   const parser = new PDFParse({ data: new Uint8Array(buf) });
-  const txt = (await parser.getText()).text;
-  const schema = type === "demand" ? SCHEMA_DEMAND : SCHEMA_WGS;
-  const out = await window.claude.complete({
-    model: "claude-haiku-4-5",
-    max_tokens: 30000,
-    system: "You convert weekly status report text extracted from a PDF into strict JSON. Output ONLY valid JSON — no markdown fences, no commentary. Preserve section names, project names, terminology and data exactly as written in the source. Never invent content.",
-    messages: [{ role: "user", content: schema + "\n\n---- REPORT TEXT ----\n" + txt }],
-  });
-  return JSON.parse(out.trim().replace(/^```(json)?\s*/i, "").replace(/```\s*$/, ""));
+  return (await parser.getText()).text;
+}
+
+// Extract structured site content from the uploaded PDF. Two paths, in order:
+// 1. The Claude Design runtime (window.claude.complete), when previewing there.
+// 2. The deployed /api/extract serverless endpoint (Claude API key stays server-side).
+// If neither is available, the report is still published with its PDF and can
+// be processed later from the uploads list.
+async function extract(type, pdfData) {
+  const txt = await pdfToText(pdfData);
+
+  if (window.claude && typeof window.claude.complete === "function") {
+    const schema = type === "demand" ? SCHEMA_DEMAND : SCHEMA_WGS;
+    const out = await window.claude.complete({
+      model: "claude-haiku-4-5",
+      max_tokens: 30000,
+      system: "You convert weekly status report text extracted from a PDF into strict JSON. Output ONLY valid JSON — no markdown fences, no commentary. Preserve section names, project names, terminology and data exactly as written in the source. Never invent content.",
+      messages: [{ role: "user", content: schema + "\n\n---- REPORT TEXT ----\n" + txt }],
+    });
+    return JSON.parse(out.trim().replace(/^```(json)?\s*/i, "").replace(/```\s*$/, ""));
+  }
+
+  let res;
+  try {
+    res = await fetch("/api/extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, text: txt }),
+    });
+  } catch {
+    throw new Error(L().noAI);
+  }
+  if (res.status === 404 || res.status === 405) throw new Error(L().noAI);
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(payload.error || L().noAI);
+  return payload.data;
 }
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

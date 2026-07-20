@@ -42,7 +42,16 @@ Each P&D portal has its own search, filters (section, entity, status, owner — 
 
 Every page supports English and Arabic via the header language switcher; the choice persists in `localStorage` (`dtLang`) and flips the layout between LTR and RTL. The site is mobile-first: portal cards stack on small screens, report filters collapse under one button, and all item lists render as cards — no horizontal scrolling.
 
-Weeks uploaded through the (future) admin page are stored in `localStorage` under `dtWeeks`; they feed the portal cards, the week selectors on the report pages (`?week=<id>`), and the archives automatically. A demand upload feeds both P&D portals through the same split rules.
+Weeks uploaded through the admin page are stored in `localStorage` under `dtWeeks`; they feed the portal cards, the week selectors on the report pages (`?week=<id>`), and the archives automatically. A demand upload feeds both P&D portals through the same split rules.
+
+## Automatic PDF extraction (admin uploads)
+
+The admin page reads each uploaded PDF in the browser (pdf-parse) and converts it into structured site content. Extraction resolves in this order:
+
+1. **Claude Design runtime** (`window.claude.complete`) when the site runs inside a Claude Design preview.
+2. **`/api/extract`** — a Vercel serverless function (`api/extract.js`) that calls the Claude API. Set the **`ANTHROPIC_API_KEY`** environment variable in the Vercel project settings to enable it (the key never reaches the browser). Optional: `EXTRACT_MODEL` overrides the model (default `claude-opus-4-8`).
+
+If neither is available, the report still publishes to the archive with its PDF (state: "PDF only — needs processing") and can be processed later with the **Process content** button once the service is configured. There is no manual data entry: one attachment per update is enough, and a single Project & Demand upload feeds both P&D portals via the entity split rules.
 
 ## Running locally
 
