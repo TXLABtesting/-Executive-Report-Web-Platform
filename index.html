@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Transformation Team — Executive Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F2;--sf:#FFFFFF;--sf2:#F3EFE7;--bd:#E6E0D4;--ink:#22312E;--mut:#75807B;
+    --acc:#2F6F62;--accInk:#FFFFFF;--glow:rgba(47,111,98,0.08);
+    --font-body:'IBM Plex Sans','IBM Plex Sans Arabic',system-ui,sans-serif;
+    --font-display:'Space Grotesk','IBM Plex Sans Arabic',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;overflow-x:hidden}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
+  }
+  a{color:var(--acc);text-decoration:none}
+  a:hover{color:var(--ink)}
+  input{font-family:var(--font-body)}
+  ::placeholder{color:#9AA39E}
+  main *{min-width:0}
+  main span,main p,main h1,main h2,main a{overflow-wrap:anywhere}
+  img,iframe,svg,video{max-width:100%}
+  [hidden]{display:none !important}
+
+  /* ===== Header ===== */
+  .site-header{
+    border-bottom:1px solid var(--bd);padding:16px 20px;position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:12px;background:var(--bg);
+  }
+  .logo{
+    width:36px;height:36px;border-radius:10px;background:var(--acc);color:var(--accInk);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+    flex-shrink:0;font-family:var(--font-display);
+  }
+  .header-titles{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .header-ministry{
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mut);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .header-site-title{font-size:15px;font-weight:600;font-family:var(--font-display)}
+  .pill-btn{
+    flex-shrink:0;border:1px solid var(--bd);background:var(--sf);border-radius:999px;
+    padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap;
+  }
+  a.pill-btn{color:var(--acc)}
+  a.pill-btn:hover{border-color:var(--acc);color:var(--acc)}
+  button.pill-btn{color:var(--ink);cursor:pointer;font-family:inherit}
+  .admin-link{margin-inline-start:auto}
+
+  /* ===== Main layout ===== */
+  main{
+    width:100%;max-width:980px;margin:0 auto;padding:36px 20px 80px;
+    display:flex;flex-direction:column;gap:36px;
+  }
+  section{display:flex;flex-direction:column}
+  .hero{gap:12px}
+  .hero h1{
+    margin:0;font-family:var(--font-display);font-size:clamp(30px,7vw,44px);
+    font-weight:700;line-height:1.1;letter-spacing:-0.02em;
+  }
+  .hero h1 .accent{color:var(--acc)}
+  .tagline{margin:0;color:var(--mut);font-size:15px;line-height:1.6}
+  .tagline strong{font-weight:600;color:var(--ink)}
+
+  /* ===== Search ===== */
+  .search-section{gap:14px}
+  .search-box{
+    display:flex;align-items:center;gap:12px;background:var(--sf);
+    border:1px solid var(--bd);border-radius:14px;padding:0 16px;
+  }
+  .search-box:focus-within{border-color:var(--acc)}
+  .search-glyph{color:var(--mut);font-size:17px}
+  .search-box input{
+    flex:1;border:0;outline:none;background:transparent;font-size:16px;
+    padding:16px 0;min-width:0;color:var(--ink);
+  }
+  .clear-btn{
+    border:0;background:var(--bd);color:var(--mut);border-radius:999px;
+    width:28px;height:28px;font-size:13px;cursor:pointer;flex-shrink:0;
+  }
+  .search-results{display:flex;flex-direction:column;gap:10px}
+  .result-count{font-size:13px;color:var(--mut);font-weight:600}
+  .result-card{
+    display:flex;flex-direction:column;gap:5px;background:var(--sf);
+    border:1px solid var(--bd);border-radius:12px;padding:14px 16px;color:var(--ink);
+  }
+  .result-card:hover{border-color:var(--acc);color:var(--ink)}
+  .result-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .result-type{
+    font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+    background:var(--glow);color:var(--acc);border-radius:5px;padding:3px 8px;
+  }
+  .result-title{font-weight:600;font-size:14px;line-height:1.4}
+  .result-meta{font-size:12px;color:var(--mut)}
+  .empty-note{font-size:14px;color:var(--mut);padding:6px 2px}
+
+  /* ===== Report cards ===== */
+  .reports-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr));gap:18px;
+  }
+  .report-card{
+    background:linear-gradient(160deg,var(--sf),var(--sf2));border:1px solid var(--bd);
+    border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:16px;
+  }
+  .report-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .report-card-titles{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .card-kicker{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);font-weight:700}
+  .report-card h2{
+    margin:0;font-family:var(--font-display);font-size:23px;font-weight:700;
+    line-height:1.2;letter-spacing:-0.01em;
+  }
+  .status-badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+    border-radius:999px;padding:6px 12px;white-space:nowrap;
+  }
+  .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .card-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+  .card-meta strong{font-weight:600;color:var(--ink)}
+  .card-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+  .btn-primary{
+    flex:1;min-width:140px;text-align:center;background:var(--acc);color:var(--accInk);
+    border-radius:12px;padding:14px 18px;font-weight:700;font-size:14px;
+  }
+  .btn-primary:hover{filter:brightness(1.1);color:var(--accInk)}
+  .btn-ghost{
+    text-align:center;background:transparent;color:var(--ink);border:1px solid var(--bd);
+    border-radius:12px;padding:14px 18px;font-weight:600;font-size:14px;
+  }
+  .btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
+
+  /* ===== Archive ===== */
+  .archive-section{gap:14px}
+  .archive-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .archive-head h2{margin:0;font-family:var(--font-display);font-size:22px;font-weight:700}
+  .archive-filter{
+    border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:14px;
+    background:var(--sf);color:var(--ink);outline-color:var(--acc);width:min(100%,240px);
+  }
+  .weeks-list{display:flex;flex-direction:column;gap:14px}
+  .week-card{
+    background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .week-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+  .week-name{font-weight:700;font-size:15px;font-family:var(--font-display)}
+  .week-date{font-size:13px;color:var(--mut)}
+  .week-reports{display:flex;flex-direction:column;gap:10px}
+  .week-report-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    border-top:1px solid var(--bd);padding-top:10px;
+  }
+  .week-report-row .report-link{font-weight:600;font-size:14px}
+  .week-report-row .pdf-link{font-size:13px;color:var(--mut)}
+  .week-report-row .pdf-link:hover{color:var(--acc)}
+  .archive-empty{font-size:14px;color:var(--mut)}
+
+  /* ===== Footer ===== */
+  .site-footer{
+    margin-top:auto;border-top:1px solid var(--bd);color:var(--mut);
+    padding:24px 20px calc(24px + env(safe-area-inset-bottom));text-align:center;font-size:12px;
+  }
+
+  @media (pointer:coarse){
+    .site-header a,.site-header button{min-height:44px;display:inline-flex;align-items:center}
+    main button{min-height:44px}
+  }
+</style>
+</head>
+<body>
+  <header class="site-header" aria-label="Home header">
+    <div class="logo" aria-hidden="true">DT</div>
+    <div class="header-titles">
+      <span class="header-ministry" id="headerMinistry">Ministry of Cabinet Affairs</span>
+      <span class="header-site-title" id="headerSiteTitle">Digital Transformation Team — Executive Reports</span>
+    </div>
+    <a class="pill-btn admin-link" id="adminLink" href="admin-upload.html">Admin</a>
+    <button class="pill-btn" id="langBtn" type="button" aria-label="Switch language">العربية</button>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Overview">
+      <h1><span id="h1a">Weekly Status</span><br><span class="accent" id="h1b">Reports</span></h1>
+      <p class="tagline"><span id="taglineText">Executive view of the weekly report updates for the Sector Head.</span><br><strong><span id="lastUpdatedLabel">Last updated</span>: <span id="lastUpdatedVal">…</span></strong></p>
+    </section>
+
+    <section class="search-section" aria-label="Global search">
+      <div class="search-box">
+        <span class="search-glyph" aria-hidden="true">⌕</span>
+        <input id="searchInput" type="text" placeholder="Search reports, projects, meetings, actions…" aria-label="Global search" autocomplete="off">
+        <button class="clear-btn" id="clearBtn" type="button" aria-label="Clear search" hidden>✕</button>
+      </div>
+      <div class="search-results" id="searchResults" hidden></div>
+    </section>
+
+    <section class="reports-grid" id="reportsGrid" aria-label="Current reports"></section>
+
+    <section class="archive-section" id="archiveSection" aria-label="Weekly archive">
+      <div class="archive-head">
+        <h2 id="archiveTitle">Weekly Archive</h2>
+        <input class="archive-filter" id="archiveInput" type="text" placeholder="Filter by week or date…" aria-label="Filter archive" autocomplete="off">
+      </div>
+      <div class="weeks-list" id="weeksList"></div>
+      <span class="archive-empty" id="noWeeksNote" hidden>No archived weeks match that search.</span>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="footerText">Ministry of Cabinet Affairs · Digital Transformation Department · Confidential</footer>
+
+  <noscript><p style="max-width:980px;margin:0 auto;padding:16px 20px">This page requires JavaScript to display the reports.</p></noscript>
+  <script type="module" src="home.js"></script>
+</body>
+</html>

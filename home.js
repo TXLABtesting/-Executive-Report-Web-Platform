@@ -1,0 +1,264 @@
+// Home page — weekly status report hub.
+// Renders the report cards, global search and weekly archive from reports-data.js,
+// with EN/AR localization (translations-ar.js) and uploaded weeks from localStorage.
+
+import * as m from "./reports-data.js";
+import * as T from "./translations-ar.js";
+
+const I18N = {
+  en: {
+    ministry: "Ministry of Cabinet Affairs",
+    siteTitle: "Digital Transformation Team — Executive Reports",
+    h1a: "Weekly Status",
+    h1b: "Reports",
+    tagline: "Executive view of the weekly report updates for the Sector Head.",
+    lastUpdated: "Last updated",
+    searchPh: "Search reports, projects, meetings, actions…",
+    results: "results",
+    noResults: "No matches across reports, projects, meetings or actions.",
+    reportingDate: "Reporting date",
+    openReport: "Open report →",
+    originalPdf: "Original PDF",
+    archive: "Weekly Archive",
+    archivePh: "Filter by week or date…",
+    issued: "Issued",
+    admin: "Admin",
+    noWeeks: "No archived weeks match that search.",
+    footer: "Ministry of Cabinet Affairs · Digital Transformation Department · Confidential",
+  },
+  ar: {
+    ministry: "وزارة شؤون مجلس الوزراء",
+    siteTitle: "فريق التحول الرقمي — التقارير التنفيذية",
+    h1a: "تقارير الحالة",
+    h1b: "الأسبوعية",
+    tagline: "عرض تنفيذي لتحديثات التقارير الأسبوعية لرئيس القطاع.",
+    lastUpdated: "آخر تحديث",
+    searchPh: "ابحث في التقارير والمشاريع والاجتماعات والإجراءات…",
+    results: "نتيجة",
+    noResults: "لا توجد نتائج مطابقة في التقارير أو المشاريع أو الاجتماعات أو الإجراءات.",
+    reportingDate: "تاريخ التقرير",
+    openReport: "فتح التقرير ←",
+    originalPdf: "ملف PDF الأصلي",
+    archive: "الأرشيف الأسبوعي",
+    archivePh: "تصفية حسب الأسبوع أو التاريخ…",
+    issued: "صدر في",
+    admin: "إدارة النظام",
+    noWeeks: "لا توجد أسابيع مؤرشفة مطابقة.",
+    footer: "وزارة شؤون مجلس الوزراء · إدارة التحول الرقمي · سرّي",
+  },
+};
+
+const state = {
+  lang: localStorage.getItem("dtLang") || "en",
+  q: "",
+  aq: "",
+};
+
+const searchIndex = m.buildSearchIndex();
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) =>
+  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Apply the default theme's CSS custom properties on the root element.
+for (const [prop, value] of Object.entries(m.themes["Warm Paper"])) {
+  document.documentElement.style.setProperty(prop, value);
+}
+
+const isAr = () => state.lang === "ar";
+const L = () => I18N[state.lang];
+const tr = (s) => (isAr() && T.AR[s] ? T.AR[s] : s);
+const trStatus = (s) => (isAr() ? T.STATUS_AR[s] || s : s);
+const trType = (s) => (isAr() ? T.TYPE_AR[s] || s : s);
+const trDate = (s) => (isAr() ? T.arDate(s) : s);
+
+function storedWeeks() {
+  try {
+    return JSON.parse(localStorage.getItem("dtWeeks") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+// Uploaded weeks with extracted data open in the matching report page; raw uploads open in the viewer.
+function uploadHref(u) {
+  return u.data
+    ? (u.type === "wgs" ? "wgs-weekly-report.html?week=" : "project-demand-report.html?week=") + u.id
+    : "report-viewer.html?id=" + u.id;
+}
+
+function computeReports() {
+  const stored = storedWeeks();
+  const latest = (type) => stored.find((x) => x.type === type);
+
+  const wgsCard = { ...m.wgsReport, kicker: m.wgsReport.programme };
+  const lw = latest("wgs");
+  if (lw) Object.assign(wgsCard, { date: lw.date, overallStatus: lw.status, href: uploadHref(lw), pdf: lw.pdfData || wgsCard.pdf });
+
+  const demandCard = { ...m.demandReport, kicker: m.demandReport.dept };
+  const ld = latest("demand");
+  if (ld) Object.assign(demandCard, { date: ld.date, overallStatus: ld.status, href: uploadHref(ld), pdf: ld.pdfData || demandCard.pdf });
+
+  const others = stored
+    .filter((x) => x.type === "other")
+    .map((u) => ({ title: u.title, kicker: m.site.dept, date: u.date, overallStatus: u.status, href: uploadHref(u), pdf: u.pdfData || "#" }));
+
+  return [wgsCard, demandCard, ...others].map((r) => ({
+    ...r,
+    title: tr(r.title),
+    kicker: tr(r.kicker),
+    date: trDate(r.date),
+    status: trStatus(r.overallStatus),
+    badge: m.statusColors[r.overallStatus] || m.statusColors["TBC"],
+  }));
+}
+
+function computeResults() {
+  const query = state.q.trim().toLowerCase();
+  if (query.length < 2) return null;
+  return searchIndex
+    .filter((e) => (e.title + " " + e.text + " " + e.type + " " + e.meta).toLowerCase().includes(query))
+    .slice(0, 30)
+    .map((e) => ({ ...e, type: trType(e.type), title: tr(e.title) }));
+}
+
+function computeWeeks() {
+  const aql = state.aq.trim().toLowerCase();
+  const uploaded = storedWeeks().map((u) => ({
+    week: u.week,
+    date: u.date,
+    reports: [{ title: u.title, href: uploadHref(u), pdf: u.pdfData || "#" }],
+  }));
+  return [...uploaded, ...m.archive]
+    .filter((w) => !aql || (w.week + " " + w.date).toLowerCase().includes(aql))
+    .map((w) => ({
+      ...w,
+      week: trDate(w.week),
+      date: trDate(w.date),
+      reports: w.reports.map((r) => ({ ...r, title: tr(r.title) })),
+    }));
+}
+
+function renderStatic() {
+  const l = L();
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = isAr() ? "rtl" : "ltr";
+  document.title = l.siteTitle;
+  $("headerMinistry").textContent = l.ministry;
+  $("headerSiteTitle").textContent = l.siteTitle;
+  $("adminLink").textContent = l.admin;
+  $("langBtn").textContent = isAr() ? "English" : "العربية";
+  $("h1a").textContent = l.h1a;
+  $("h1b").textContent = l.h1b;
+  $("taglineText").textContent = l.tagline;
+  $("lastUpdatedLabel").textContent = l.lastUpdated;
+  $("lastUpdatedVal").textContent = trDate(m.site.lastUpdated);
+  $("searchInput").placeholder = l.searchPh;
+  $("archiveTitle").textContent = l.archive;
+  $("archiveInput").placeholder = l.archivePh;
+  $("noWeeksNote").textContent = l.noWeeks;
+  $("footerText").textContent = l.footer;
+}
+
+function renderSearch() {
+  const results = computeResults();
+  const box = $("searchResults");
+  const hasQ = results !== null;
+  $("clearBtn").hidden = !hasQ;
+  box.hidden = !hasQ;
+  if (!hasQ) {
+    box.innerHTML = "";
+    return;
+  }
+  const rows = results
+    .map(
+      (r) => `<a class="result-card" href="${esc(r.href)}">
+        <span class="result-head">
+          <span class="result-type">${esc(r.type)}</span>
+          <span class="result-title">${esc(r.title)}</span>
+        </span>
+        <span class="result-meta">${esc(r.meta)}</span>
+      </a>`
+    )
+    .join("");
+  const empty = results.length === 0 ? `<span class="empty-note">${esc(L().noResults)}</span>` : "";
+  box.innerHTML = `<span class="result-count">${results.length} ${esc(L().results)}</span>${rows}${empty}`;
+}
+
+function renderReports() {
+  $("reportsGrid").innerHTML = computeReports()
+    .map(
+      (r) => `<article class="report-card">
+        <div class="report-card-head">
+          <div class="report-card-titles">
+            <span class="card-kicker">${esc(r.kicker)}</span>
+            <h2>${esc(r.title)}</h2>
+          </div>
+          <span class="status-badge" style="background:${esc(r.badge.bg)};color:${esc(r.badge.fg)}"><span class="status-dot" style="background:${esc(r.badge.dot)}"></span>${esc(r.status)}</span>
+        </div>
+        <div class="card-meta"><span><strong>${esc(L().reportingDate)}:</strong> ${esc(r.date)}</span></div>
+        <div class="card-actions">
+          <a class="btn-primary" href="${esc(r.href)}">${esc(L().openReport)}</a>
+          <a class="btn-ghost" href="${esc(r.pdf)}" download>${esc(L().originalPdf)}</a>
+        </div>
+      </article>`
+    )
+    .join("");
+}
+
+function renderArchive() {
+  const weeks = computeWeeks();
+  $("noWeeksNote").hidden = weeks.length > 0;
+  $("weeksList").innerHTML = weeks
+    .map(
+      (w) => `<div class="week-card">
+        <div class="week-head">
+          <span class="week-name">${esc(w.week)}</span>
+          <span class="week-date">${esc(L().issued)} ${esc(w.date)}</span>
+        </div>
+        <div class="week-reports">
+          ${w.reports
+            .map(
+              (r) => `<div class="week-report-row">
+                <a class="report-link" href="${esc(r.href)}">${esc(r.title)}</a>
+                <a class="pdf-link" href="${esc(r.pdf)}" download>PDF ↓</a>
+              </div>`
+            )
+            .join("")}
+        </div>
+      </div>`
+    )
+    .join("");
+}
+
+function render() {
+  renderStatic();
+  renderSearch();
+  renderReports();
+  renderArchive();
+}
+
+$("langBtn").addEventListener("click", () => {
+  state.lang = isAr() ? "en" : "ar";
+  localStorage.setItem("dtLang", state.lang);
+  render();
+});
+
+$("searchInput").addEventListener("input", (e) => {
+  state.q = e.target.value;
+  renderSearch();
+});
+
+$("clearBtn").addEventListener("click", () => {
+  state.q = "";
+  $("searchInput").value = "";
+  renderSearch();
+  $("searchInput").focus();
+});
+
+$("archiveInput").addEventListener("input", (e) => {
+  state.aq = e.target.value;
+  renderArchive();
+});
+
+render();
