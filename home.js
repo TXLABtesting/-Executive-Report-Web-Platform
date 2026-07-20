@@ -106,7 +106,10 @@ function uploadHref(u, page) {
 function computePortals() {
   const l = L();
   const stored = storedWeeks();
-  const latest = (type) => stored.find((x) => x.type === type);
+  // Only uploads with extracted interactive content take over the portal cards;
+  // PDF-only uploads stay reachable from the weekly archive and the admin page
+  // without replacing the current interactive report.
+  const latest = (type) => stored.find((x) => x.type === type && x.data);
   const lw = latest("wgs");
   const ld = latest("demand");
   const pdHref = (page) => (ld && ld.data ? page + "?week=" + ld.id : page);
