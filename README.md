@@ -50,8 +50,13 @@ The admin page reads each uploaded PDF in the browser (pdf-parse) and converts i
 
 1. **Claude Design runtime** (`window.claude.complete`) when the site runs inside a Claude Design preview.
 2. **`/api/extract`** — a Vercel serverless function (`api/extract.js`) that calls the Claude API. Set the **`ANTHROPIC_API_KEY`** environment variable in the Vercel project settings to enable it (the key never reaches the browser). Optional: `EXTRACT_MODEL` overrides the model (default `claude-opus-4-8`).
+3. **Direct from the browser** — on static hosting (e.g. the GitHub Pages demo) there is no server, so the admin can save a Claude API key in the "Extraction settings" section of the admin page. The key is stored only in that browser (`localStorage`) and sent only to the Claude API (official SDK with `dangerouslyAllowBrowser`); use a restricted key.
 
-If neither is available, the report still publishes to the archive with its PDF (state: "PDF only — needs processing") and can be processed later with the **Process content** button once the service is configured. There is no manual data entry: one attachment per update is enough, and a single Project & Demand upload feeds both P&D portals via the entity split rules.
+If none is available, the report still publishes to the archive with its PDF (state: "PDF only — needs processing") and can be processed later with the **Process content** button once extraction is configured. There is no manual data entry: one attachment per update is enough, and a single Project & Demand upload feeds both P&D portals via the entity split rules.
+
+## Live demo (GitHub Pages)
+
+`.github/workflows/pages.yml` deploys the site to GitHub Pages on every push to this branch. One-time setup: repository **Settings → Pages → Source: GitHub Actions**. The demo URL is `https://txlabtesting.github.io/-Executive-Report-Web-Platform/`.
 
 ## Running locally
 

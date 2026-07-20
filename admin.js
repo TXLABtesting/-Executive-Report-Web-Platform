@@ -21,7 +21,16 @@ const I18N = {
     parsedOk: "Interactive content", parsedNo: "PDF only — needs processing",
     reprocessBtn: "Process content", reprocessing: "Processing…",
     warnParse: "Published to the archive, but automatic content extraction failed — the report opens as details only",
-    noAI: "the extraction service is not reachable — configure ANTHROPIC_API_KEY on the server, then use Process content",
+    noAI: "no extraction service available — enter a Claude API key in the extraction settings below (or configure ANTHROPIC_API_KEY on the server), then use Process content",
+    keyTitle: "Extraction settings",
+    keySub: "On static hosting (e.g. the GitHub Pages demo) there is no server, so PDF reading runs directly from this browser using your Claude API key.",
+    keyLabel: "Claude API key",
+    keyPh: "sk-ant-…",
+    keySave: "Save key",
+    keyClear: "Remove",
+    keySet: "✓ A key is saved in this browser — automatic extraction is enabled.",
+    keyUnset: "No key saved — uploads will publish as 'PDF only' until a key is added or a server is configured.",
+    keyNote: "The key is stored only in this browser (localStorage) and is sent only to the Claude API. Use a restricted key from console.anthropic.com.",
     listTitle: "Published uploads", empty: "No uploaded reports yet.",
     downloadPdfS: "PDF", delete: "Delete",
     footer: "Ministry of Cabinet Affairs · Digital Transformation Department · Confidential",
@@ -45,7 +54,16 @@ const I18N = {
     parsedOk: "محتوى تفاعلي", parsedNo: "PDF فقط — يحتاج معالجة",
     reprocessBtn: "معالجة المحتوى", reprocessing: "جارٍ المعالجة…",
     warnParse: "نُشر في الأرشيف، لكن تعذّر استخراج المحتوى تلقائيًا — سيُفتح التقرير كتفاصيل فقط",
-    noAI: "خدمة الاستخراج غير متاحة — يجب ضبط ANTHROPIC_API_KEY في الخادم ثم استخدام «معالجة المحتوى»",
+    noAI: "لا توجد خدمة استخراج متاحة — أدخل مفتاح Claude API في إعدادات الاستخراج أدناه (أو اضبط ANTHROPIC_API_KEY في الخادم) ثم استخدم «معالجة المحتوى»",
+    keyTitle: "إعدادات الاستخراج",
+    keySub: "على الاستضافة الثابتة (مثل ديمو GitHub Pages) لا يوجد خادم، لذا تتم قراءة PDF مباشرة من هذا المتصفح باستخدام مفتاح Claude API الخاص بك.",
+    keyLabel: "مفتاح Claude API",
+    keyPh: "sk-ant-…",
+    keySave: "حفظ المفتاح",
+    keyClear: "إزالة",
+    keySet: "✓ يوجد مفتاح محفوظ في هذا المتصفح — الاستخراج التلقائي مفعّل.",
+    keyUnset: "لا يوجد مفتاح محفوظ — ستُنشر الرفعات بحالة «PDF فقط» حتى إضافة مفتاح أو تهيئة خادم.",
+    keyNote: "يُحفظ المفتاح في هذا المتصفح فقط (localStorage) ولا يُرسل إلا إلى Claude API. استخدم مفتاحًا مقيّد الصلاحيات من console.anthropic.com.",
     listTitle: "التقارير المنشورة", empty: "لا توجد تقارير مرفوعة بعد.",
     downloadPdfS: "PDF", delete: "حذف",
     footer: "وزارة شؤون مجلس الوزراء · إدارة التحول الرقمي · سرّي",
@@ -68,6 +86,16 @@ const SCHEMA_WGS = `Convert the report text into JSON with EXACTLY this shape (a
 "decisions":[{"item":"..","detail":"..","status":"In Progress"}],
 "risks":[{"level":"MED","risk":"..","mitigation":".."}],
 "actions":[{"action":"..","owner":"..","target":"..","status":"Pending"}]}`;
+
+const SYSTEM_EXTRACT =
+  "You convert weekly status report text extracted from a PDF into strict JSON. " +
+  "Output ONLY valid JSON — no markdown fences, no commentary. Preserve section names, " +
+  "project names, terminology and data exactly as written in the source. Never invent content.";
+
+// Claude API key for direct-from-browser extraction (static hosting like GitHub
+// Pages, where no /api/extract server exists). Stored only in this browser.
+const API_KEY_STORE = "dtAnthropicKey";
+const getApiKey = () => localStorage.getItem(API_KEY_STORE) || "";
 
 const state = {
   lang: getLang(),
@@ -109,11 +137,35 @@ async function pdfToText(pdfData) {
   return (await parser.getText()).text;
 }
 
-// Extract structured site content from the uploaded PDF. Two paths, in order:
+const stripFences = (s) => s.trim().replace(/^```(json)?\s*/i, "").replace(/```\s*$/, "");
+
+// Direct-from-browser extraction via the official Anthropic SDK (ESM from CDN).
+// Used on static hosting (GitHub Pages) where no server endpoint exists; the
+// admin's key comes from localStorage and never leaves this browser except to
+// the Claude API itself.
+async function extractDirect(type, txt) {
+  const { default: Anthropic } = await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.110.0/+esm");
+  const client = new Anthropic({ apiKey: getApiKey(), dangerouslyAllowBrowser: true });
+  const schema = type === "demand" ? SCHEMA_DEMAND : SCHEMA_WGS;
+  const stream = client.messages.stream({
+    model: "claude-opus-4-8",
+    max_tokens: 64000,
+    system: SYSTEM_EXTRACT,
+    messages: [{ role: "user", content: schema + "\n\n---- REPORT TEXT ----\n" + txt }],
+  });
+  const message = await stream.finalMessage();
+  if (message.stop_reason === "refusal") throw new Error("the model declined to process this document");
+  if (message.stop_reason === "max_tokens") throw new Error("the report is too large to extract in one pass");
+  const out = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  return JSON.parse(stripFences(out));
+}
+
+// Extract structured site content from the uploaded PDF. Three paths, in order:
 // 1. The Claude Design runtime (window.claude.complete), when previewing there.
-// 2. The deployed /api/extract serverless endpoint (Claude API key stays server-side).
-// If neither is available, the report is still published with its PDF and can
-// be processed later from the uploads list.
+// 2. The /api/extract serverless endpoint (Vercel; key stays server-side).
+// 3. Direct browser call with the admin's own API key (static hosting / Pages).
+// If none is available, the report still publishes with its PDF and can be
+// processed later from the uploads list.
 async function extract(type, pdfData) {
   const txt = await pdfToText(pdfData);
 
@@ -122,26 +174,35 @@ async function extract(type, pdfData) {
     const out = await window.claude.complete({
       model: "claude-haiku-4-5",
       max_tokens: 30000,
-      system: "You convert weekly status report text extracted from a PDF into strict JSON. Output ONLY valid JSON — no markdown fences, no commentary. Preserve section names, project names, terminology and data exactly as written in the source. Never invent content.",
+      system: SYSTEM_EXTRACT,
       messages: [{ role: "user", content: schema + "\n\n---- REPORT TEXT ----\n" + txt }],
     });
-    return JSON.parse(out.trim().replace(/^```(json)?\s*/i, "").replace(/```\s*$/, ""));
+    return JSON.parse(stripFences(out));
   }
 
-  let res;
+  let serverError = null;
   try {
-    res = await fetch("/api/extract", {
+    const res = await fetch("api/extract", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type, text: txt }),
     });
+    if (res.ok) {
+      const payload = await res.json();
+      return payload.data;
+    }
+    // 404/405: static hosting (no server). 503: server present but unconfigured.
+    if (![404, 405, 503].includes(res.status)) {
+      const payload = await res.json().catch(() => ({}));
+      serverError = new Error(payload.error || L().noAI);
+    }
   } catch {
-    throw new Error(L().noAI);
+    // network error — fall through to the direct path
   }
-  if (res.status === 404 || res.status === 405) throw new Error(L().noAI);
-  const payload = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(payload.error || L().noAI);
-  return payload.data;
+  if (serverError && !getApiKey()) throw serverError;
+
+  if (getApiKey()) return extractDirect(type, txt);
+  throw new Error(L().noAI);
 }
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -309,6 +370,23 @@ function build() {
       <span class="note">${esc(l.note)}</span>
     </section>
 
+    <section class="form-card" aria-label="Extraction settings">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <h2 class="uploads-title">${esc(l.keyTitle)}</h2>
+        <span class="form-sub">${esc(l.keySub)}</span>
+      </div>
+      <label class="field">
+        <span class="field-label">${esc(l.keyLabel)}</span>
+        <input type="password" id="apiKeyInput" placeholder="${esc(l.keyPh)}" autocomplete="off" value="${esc(getApiKey())}">
+      </label>
+      <div class="submit-row">
+        <button type="button" id="apiKeySave" class="submit-btn">${esc(l.keySave)}</button>
+        ${getApiKey() ? `<button type="button" id="apiKeyClear" class="reprocess-btn" style="border-color:#B83A30;color:#B83A30">${esc(l.keyClear)}</button>` : ""}
+        <span class="${getApiKey() ? "saved-msg" : "phase-msg"}">${esc(getApiKey() ? l.keySet : l.keyUnset)}</span>
+      </div>
+      <span class="note">${esc(l.keyNote)}</span>
+    </section>
+
     <section aria-label="Uploaded reports" style="display:flex;flex-direction:column;gap:0">
       <h2 class="uploads-title">${esc(l.listTitle)} (${state.uploads.length})</h2>
       <div id="uploadsList">${uploadsHTML()}</div>
@@ -357,6 +435,17 @@ function build() {
     r.readAsDataURL(f);
   });
   document.getElementById("submitBtn").addEventListener("click", submit);
+  document.getElementById("apiKeySave").addEventListener("click", () => {
+    const v = document.getElementById("apiKeyInput").value.trim();
+    if (v) localStorage.setItem(API_KEY_STORE, v);
+    else localStorage.removeItem(API_KEY_STORE);
+    build();
+  });
+  const keyClear = document.getElementById("apiKeyClear");
+  if (keyClear) keyClear.addEventListener("click", () => {
+    localStorage.removeItem(API_KEY_STORE);
+    build();
+  });
   document.getElementById("uploadsList").addEventListener("click", (e) => {
     const rep = e.target.closest(".reprocess-btn");
     if (rep) { reprocess(+rep.dataset.id); return; }
