@@ -143,6 +143,9 @@
   /* Stretched link: the Open Report link makes the whole card clickable. */
   .stretch-link::after{content:"";position:absolute;inset:0;border-radius:20px}
   .external-mark{font-size:12px;opacity:0.85}
+  .btn-disabled{background:var(--bd);color:var(--mut);cursor:not-allowed;user-select:none}
+  .btn-disabled:hover{filter:none}
+  .portal-card:has(.btn-disabled):hover{border-color:var(--bd)}
 
   /* ===== Archive ===== */
   .archive-section{gap:14px}

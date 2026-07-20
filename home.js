@@ -25,7 +25,7 @@ const I18N = {
     wgsDesc: "Weekly WGS Digital Transformation 2027 status — meetings, workstreams, Salesforce integration, decisions, risks and actions.",
     ministryDesc: "Projects and demands for PMO, MOCA, WGS, GSOC, FCSC and the other ministry entities and sectors — with independent search, filters and statistics.",
     cssDesc: "All projects, MOCASmart releases and demands owned by the CSS sector, with totals computed automatically from the source data.",
-    tecDesc: "Latest Total Experience Center status update, opening directly on the MOCASmart section of the chief report.",
+    tecDesc: "Latest Total Experience Center status update. The report link will be added soon.",
     archive: "Weekly Archive",
     archivePh: "Filter by week or date…",
     issued: "Issued",
@@ -52,7 +52,7 @@ const I18N = {
     wgsDesc: "الحالة الأسبوعية للتحول الرقمي WGS 2027 — الاجتماعات ومسارات العمل وتكامل Salesforce والقرارات والمخاطر والإجراءات.",
     ministryDesc: "المشاريع والطلبات لجهات وقطاعات الوزارة: PMO وMOCA وWGS وGSOC وFCSC وغيرها — مع بحث وفلاتر وإحصاءات مستقلة.",
     cssDesc: "جميع المشاريع وإصدارات MOCASmart والطلبات التابعة لقطاع CSS، مع إجماليات تُحتسب تلقائيًا من البيانات المصدر.",
-    tecDesc: "أحدث تحديث لحالة مركز التجربة الشاملة، يُفتح مباشرة على قسم MOCASmart في التقرير الرئيسي.",
+    tecDesc: "أحدث تحديث لحالة مركز التجربة الشاملة. سيُضاف رابط التقرير قريبًا.",
     archive: "الأرشيف الأسبوعي",
     archivePh: "تصفية حسب الأسبوع أو التاريخ…",
     issued: "صدر في",
@@ -137,15 +137,14 @@ function computePortals() {
       href: pdHref(m.CSS_DEMAND_HREF),
     },
     {
-      // External portal: opens the chief report directly on its MOCASmart section,
-      // in the same tab, with the #sec-mocasmart anchor preserved.
+      // External portal — destination link intentionally removed; the new URL
+      // will be provided later. The card stays visible with a disabled button.
       title: l.tecTitle,
       kicker: tr(m.site.dept),
       date: trDate(m.site.lastUpdated),
-      overallStatus: "Live",
+      overallStatus: "Pending",
       desc: l.tecDesc,
-      href: "https://chief-report.onrender.com/#sec-mocasmart",
-      external: true,
+      href: "",
     },
   ];
 
@@ -253,7 +252,9 @@ function renderReports() {
         <p class="portal-desc">${esc(r.desc)}</p>
         <div class="card-meta"><span><strong>${esc(L().lastUpdated)}:</strong> ${esc(r.date)}</span></div>
         <div class="card-actions">
-          <a class="btn-primary stretch-link" href="${esc(r.href)}">${esc(L().openReport)}${r.external ? ' <span class="external-mark" aria-hidden="true">↗</span>' : ""}</a>
+          ${r.href
+            ? `<a class="btn-primary stretch-link" href="${esc(r.href)}">${esc(L().openReport)}${r.external ? ' <span class="external-mark" aria-hidden="true">↗</span>' : ""}</a>`
+            : `<span class="btn-primary btn-disabled" aria-disabled="true">${esc(L().openReport)}</span>`}
         </div>
       </article>`
     )
