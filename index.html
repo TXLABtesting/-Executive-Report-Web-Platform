@@ -136,6 +136,14 @@
   }
   .btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
 
+  /* ===== Portal cards ===== */
+  .portal-card{position:relative}
+  .portal-card:hover{border-color:var(--acc)}
+  .portal-desc{margin:0;font-size:14px;line-height:1.6;color:var(--mut)}
+  /* Stretched link: the Open Report link makes the whole card clickable. */
+  .stretch-link::after{content:"";position:absolute;inset:0;border-radius:20px}
+  .external-mark{font-size:12px;opacity:0.85}
+
   /* ===== Archive ===== */
   .archive-section{gap:14px}
   .archive-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -200,7 +208,7 @@
       <div class="search-results" id="searchResults" hidden></div>
     </section>
 
-    <section class="reports-grid" id="reportsGrid" aria-label="Current reports"></section>
+    <section class="reports-grid" id="reportsGrid" aria-label="Report portals"></section>
 
     <section class="archive-section" id="archiveSection" aria-label="Weekly archive">
       <div class="archive-head">

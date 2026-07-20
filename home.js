@@ -19,6 +19,13 @@ const I18N = {
     reportingDate: "Reporting date",
     openReport: "Open report →",
     originalPdf: "Original PDF",
+    ministryTitle: "Ministry Project & Demand",
+    cssTitle: "CSS Project & Demand",
+    tecTitle: "Total Experience Center Status Report",
+    wgsDesc: "Weekly WGS Digital Transformation 2027 status — meetings, workstreams, Salesforce integration, decisions, risks and actions.",
+    ministryDesc: "Projects and demands for PMO, MOCA, WGS, GSOC, FCSC and the other ministry entities and sectors — with independent search, filters and statistics.",
+    cssDesc: "All projects, MOCASmart releases and demands owned by the CSS sector, with totals computed automatically from the source data.",
+    tecDesc: "Latest Total Experience Center status update, opening directly on the MOCASmart section of the chief report.",
     archive: "Weekly Archive",
     archivePh: "Filter by week or date…",
     issued: "Issued",
@@ -39,6 +46,13 @@ const I18N = {
     reportingDate: "تاريخ التقرير",
     openReport: "فتح التقرير ←",
     originalPdf: "ملف PDF الأصلي",
+    ministryTitle: "مشاريع وطلبات الوزارة",
+    cssTitle: "مشاريع وطلبات CSS",
+    tecTitle: "تقرير حالة مركز التجربة الشاملة",
+    wgsDesc: "الحالة الأسبوعية للتحول الرقمي WGS 2027 — الاجتماعات ومسارات العمل وتكامل Salesforce والقرارات والمخاطر والإجراءات.",
+    ministryDesc: "المشاريع والطلبات لجهات وقطاعات الوزارة: PMO وMOCA وWGS وGSOC وFCSC وغيرها — مع بحث وفلاتر وإحصاءات مستقلة.",
+    cssDesc: "جميع المشاريع وإصدارات MOCASmart والطلبات التابعة لقطاع CSS، مع إجماليات تُحتسب تلقائيًا من البيانات المصدر.",
+    tecDesc: "أحدث تحديث لحالة مركز التجربة الشاملة، يُفتح مباشرة على قسم MOCASmart في التقرير الرئيسي.",
     archive: "الأرشيف الأسبوعي",
     archivePh: "تصفية حسب الأسبوع أو التاريخ…",
     issued: "صدر في",
@@ -80,34 +94,67 @@ function storedWeeks() {
   }
 }
 
-// Uploaded weeks with extracted data open in the matching report page; raw uploads open in the viewer.
-function uploadHref(u) {
+// Uploaded weeks with extracted data open in the matching report portal; raw uploads open in the viewer.
+// Demand uploads default to the ministry portal href; both P&D portals accept ?week=.
+function uploadHref(u, page) {
   return u.data
-    ? (u.type === "wgs" ? "wgs-weekly-report.html?week=" : "project-demand-report.html?week=") + u.id
+    ? (page || (u.type === "wgs" ? m.wgsReport.href : m.MINISTRY_DEMAND_HREF)) + "?week=" + u.id
     : "report-viewer.html?id=" + u.id;
 }
 
-function computeReports() {
+// The four access portals shown on the landing page, plus any "other" uploaded reports.
+function computePortals() {
+  const l = L();
   const stored = storedWeeks();
   const latest = (type) => stored.find((x) => x.type === type);
-
-  const wgsCard = { ...m.wgsReport, kicker: m.wgsReport.programme };
   const lw = latest("wgs");
-  if (lw) Object.assign(wgsCard, { date: lw.date, overallStatus: lw.status, href: uploadHref(lw), pdf: lw.pdfData || wgsCard.pdf });
-
-  const demandCard = { ...m.demandReport, kicker: m.demandReport.dept };
   const ld = latest("demand");
-  if (ld) Object.assign(demandCard, { date: ld.date, overallStatus: ld.status, href: uploadHref(ld), pdf: ld.pdfData || demandCard.pdf });
+  const pdHref = (page) => (ld && ld.data ? page + "?week=" + ld.id : page);
+
+  const portals = [
+    {
+      title: tr(m.wgsReport.title),
+      kicker: tr(m.wgsReport.programme),
+      date: trDate(lw ? lw.date : m.wgsReport.date),
+      overallStatus: lw ? lw.status : m.wgsReport.overallStatus,
+      desc: l.wgsDesc,
+      href: lw ? uploadHref(lw) : m.wgsReport.href,
+    },
+    {
+      title: l.ministryTitle,
+      kicker: tr(m.site.dept),
+      date: trDate(ld ? ld.date : m.demandReport.date),
+      overallStatus: ld ? ld.status : m.demandReport.overallStatus,
+      desc: l.ministryDesc,
+      href: pdHref(m.MINISTRY_DEMAND_HREF),
+    },
+    {
+      title: l.cssTitle,
+      kicker: tr(m.site.dept),
+      date: trDate(ld ? ld.date : m.demandReport.date),
+      overallStatus: ld ? ld.status : m.demandReport.overallStatus,
+      desc: l.cssDesc,
+      href: pdHref(m.CSS_DEMAND_HREF),
+    },
+    {
+      // External portal: opens the chief report directly on its MOCASmart section,
+      // in the same tab, with the #sec-mocasmart anchor preserved.
+      title: l.tecTitle,
+      kicker: tr(m.site.dept),
+      date: trDate(m.site.lastUpdated),
+      overallStatus: "Live",
+      desc: l.tecDesc,
+      href: "https://chief-report.onrender.com/#sec-mocasmart",
+      external: true,
+    },
+  ];
 
   const others = stored
     .filter((x) => x.type === "other")
-    .map((u) => ({ title: u.title, kicker: m.site.dept, date: u.date, overallStatus: u.status, href: uploadHref(u), pdf: u.pdfData || "#" }));
+    .map((u) => ({ title: tr(u.title), kicker: tr(m.site.dept), date: trDate(u.date), overallStatus: u.status, desc: tr(u.summary || ""), href: uploadHref(u) }));
 
-  return [wgsCard, demandCard, ...others].map((r) => ({
+  return [...portals, ...others].map((r) => ({
     ...r,
-    title: tr(r.title),
-    kicker: tr(r.kicker),
-    date: trDate(r.date),
     status: trStatus(r.overallStatus),
     badge: m.statusColors[r.overallStatus] || m.statusColors["TBC"],
   }));
@@ -127,7 +174,14 @@ function computeWeeks() {
   const uploaded = storedWeeks().map((u) => ({
     week: u.week,
     date: u.date,
-    reports: [{ title: u.title, href: uploadHref(u), pdf: u.pdfData || "#" }],
+    // A demand upload feeds both Project & Demand portals, so list both links.
+    reports:
+      u.type === "demand" && u.data
+        ? [
+            { title: L().ministryTitle, href: uploadHref(u, m.MINISTRY_DEMAND_HREF), pdf: u.pdfData || "#" },
+            { title: L().cssTitle, href: uploadHref(u, m.CSS_DEMAND_HREF), pdf: u.pdfData || "#" },
+          ]
+        : [{ title: u.title, href: uploadHref(u), pdf: u.pdfData || "#" }],
   }));
   return [...uploaded, ...m.archive]
     .filter((w) => !aql || (w.week + " " + w.date).toLowerCase().includes(aql))
@@ -186,9 +240,9 @@ function renderSearch() {
 }
 
 function renderReports() {
-  $("reportsGrid").innerHTML = computeReports()
+  $("reportsGrid").innerHTML = computePortals()
     .map(
-      (r) => `<article class="report-card">
+      (r) => `<article class="report-card portal-card">
         <div class="report-card-head">
           <div class="report-card-titles">
             <span class="card-kicker">${esc(r.kicker)}</span>
@@ -196,10 +250,10 @@ function renderReports() {
           </div>
           <span class="status-badge" style="background:${esc(r.badge.bg)};color:${esc(r.badge.fg)}"><span class="status-dot" style="background:${esc(r.badge.dot)}"></span>${esc(r.status)}</span>
         </div>
-        <div class="card-meta"><span><strong>${esc(L().reportingDate)}:</strong> ${esc(r.date)}</span></div>
+        <p class="portal-desc">${esc(r.desc)}</p>
+        <div class="card-meta"><span><strong>${esc(L().lastUpdated)}:</strong> ${esc(r.date)}</span></div>
         <div class="card-actions">
-          <a class="btn-primary" href="${esc(r.href)}">${esc(L().openReport)}</a>
-          <a class="btn-ghost" href="${esc(r.pdf)}" download>${esc(L().originalPdf)}</a>
+          <a class="btn-primary stretch-link" href="${esc(r.href)}">${esc(L().openReport)}${r.external ? ' <span class="external-mark" aria-hidden="true">↗</span>' : ""}</a>
         </div>
       </article>`
     )

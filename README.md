@@ -2,22 +2,45 @@
 
 Static web platform for the Ministry of Cabinet Affairs — Digital Transformation Department weekly executive reports.
 
-## Pages
+## Report portals
 
-- `index.html` — **Home** (implemented): weekly status report hub with global search, current report cards and the weekly archive. Fully bilingual (English / Arabic with RTL) with the language choice persisted in `localStorage`.
-- `wgs-weekly-report.html` — WGS Weekly Status Report (not yet implemented; linked from Home)
-- `project-demand-report.html` — Project & Demand Status Report (not yet implemented; linked from Home)
-- `report-viewer.html` — viewer for uploaded PDF reports (not yet implemented)
-- `admin-upload.html` — admin upload page (not yet implemented; linked from the header)
+The landing page (`index.html`) presents four access portals as clickable cards, plus global search and the weekly archive:
+
+1. **WGS Weekly Status Report** — `wgs-weekly-status.html`: meetings, workstream focus, Salesforce deep dive, decisions & risks, actions.
+2. **Ministry Project & Demand** — `ministry-project-demand.html`: items whose Entity / Sector is one of the ministry entities (PMO, MOCA, WGS, GSOC, FCSC, Performance & Govt Excellence, Strategy & Innovation, Govt Service Sector, MBRCGI / Strategy & Innovation, Govt Development & Future Office, GEEO, Office of Secretary-General).
+3. **CSS Project & Demand** — `css-project-demand.html`: items whose Entity / Sector is exactly `CSS`.
+4. **Total Experience Center Status Report** — external card that opens `https://chief-report.onrender.com/#sec-mocasmart` directly (same tab, anchor preserved); it has no internal page.
+
+Also referenced but not yet implemented: `report-viewer.html` (viewer for raw uploaded PDFs) and `admin-upload.html` (admin upload page, linked from the header).
+
+## Report-mapping rules (Project & Demand split)
+
+`reports-data.js` remains the **single structured source** for all Project & Demand data. The two P&D portals are derived views produced by `splitDemand(report, variant)`:
+
+- An item belongs to **CSS Project & Demand** iff `entity === "CSS"`.
+- An item belongs to **Ministry Project & Demand** iff its entity is in `MINISTRY_ENTITIES`.
+- Any other entity value (missing, inconsistent, or unrecognized — e.g. `"—"`) is **flagged for review** and assigned to neither portal; flagged items are listed in a review panel on the ministry portal.
+- Every item therefore appears in exactly one portal (or the flagged list) — never duplicated, never lost.
+- **All totals, statistics, status distributions and entity counts are computed from the data at render time. Nothing is hard-coded.**
+
+Each P&D portal has its own search, filters (section, entity, status, owner — combined under a single "Filters" button), summary stat cards, entity distribution chart, "Requires Management Attention" digest and weekly archive/week selector.
 
 ## Structure
 
-- `home.js` — Home page logic: rendering, search, archive filtering, EN/AR toggle.
-- `reports-data.js` — unified content model for both weekly reports, the archive, status colors, visual themes and the search index. Add a new weekly report by appending to `archive` and updating the report objects.
-- `translations-ar.js` — reviewed Arabic localization keyed by the exact English source strings, plus status/type maps and date localization.
-- `uploads/` — original PDF report files referenced by the "Original PDF" links (add the PDFs here).
+- `index.html` + `home.js` — landing page: four portal cards, global search across all portals, weekly archive.
+- `ministry-project-demand.html` / `css-project-demand.html` + `pd-report.js` — the two Project & Demand portals (one shared implementation, variant chosen by `<body data-variant>`).
+- `wgs-weekly-status.html` + `wgs-report.js` — the WGS weekly report portal.
+- `common.js` — shared helpers (escaping, theme, language state, translators, scroll-spy).
+- `report.css` — shared styles for the report portals.
+- `reports-data.js` — unified content model, report-mapping rules, split/flatten helpers, status colors, themes, search index.
+- `translations-ar.js` — reviewed Arabic localization keyed by the exact English source strings.
+- `uploads/` — original PDF report files referenced by the download links (add the PDFs here).
 
-Weeks uploaded through the (future) admin page are stored in `localStorage` under `dtWeeks` and are merged into the Home cards and archive automatically.
+## Localization & responsiveness
+
+Every page supports English and Arabic via the header language switcher; the choice persists in `localStorage` (`dtLang`) and flips the layout between LTR and RTL. The site is mobile-first: portal cards stack on small screens, report filters collapse under one button, and all item lists render as cards — no horizontal scrolling.
+
+Weeks uploaded through the (future) admin page are stored in `localStorage` under `dtWeeks`; they feed the portal cards, the week selectors on the report pages (`?week=<id>`), and the archives automatically. A demand upload feeds both P&D portals through the same split rules.
 
 ## Running locally
 

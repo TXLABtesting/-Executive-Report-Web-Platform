@@ -25,8 +25,12 @@ export const AR = {
   // ==== Shared / report meta ====
   "WGS Weekly Status Report": "تقرير الحالة الأسبوعي — WGS",
   "Project & Demand Status Report": "تقرير حالة المشاريع والطلبات",
+  "Ministry Project & Demand": "مشاريع وطلبات الوزارة",
+  "CSS Project & Demand": "مشاريع وطلبات CSS",
+  "Total Experience Center Status Report": "تقرير حالة مركز التجربة الشاملة",
   "Digital Transformation Strategy 2027": "استراتيجية التحول الرقمي 2027",
   "Digital Transformation Department · Confidential": "إدارة التحول الرقمي · سرّي",
+  "Digital Transformation Department": "إدارة التحول الرقمي",
   "WGS Digital Transformation 2027 — Internal Status Update": "التحول الرقمي WGS 2027 — تحديث الحالة الداخلي",
   "Weekly Update · Friday, 17 July 2026": "تحديث أسبوعي · الجمعة 17 يوليو 2026",
   "7 sessions completed this week across Salesforce, Evento, Community Portal and Program Portal. Salesforce onboarding started — PM assigned, kickoff targeted for late next week. 3 medium risks tracked; 6 action items in motion.": "اكتملت 7 جلسات هذا الأسبوع شملت Salesforce وEvento وبوابتي Community Portal وProgram Portal. بدأت تهيئة Salesforce — تم تعيين PM والانطلاقة مستهدفة أواخر الأسبوع المقبل. تُتابَع 3 مخاطر متوسطة و6 بنود عمل قيد التنفيذ.",

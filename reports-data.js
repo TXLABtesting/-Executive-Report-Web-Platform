@@ -9,7 +9,7 @@ export const site = {
 
 export const wgsReport = {
   id: "wgs-2026-07-17",
-  href: "wgs-weekly-report.html",
+  href: "wgs-weekly-status.html",
   pdf: "uploads/WGS_Weekly_Status_Report_17July.pdf",
   title: "WGS Weekly Status Report",
   programme: "Digital Transformation Strategy 2027",
@@ -138,7 +138,7 @@ const P = (name, entity, status, updates, next, goLive) => ({ name, entity, stat
 
 export const demandReport = {
   id: "demand-2026-07-17",
-  href: "project-demand-report.html",
+  href: "ministry-project-demand.html",
   pdf: "uploads/project-demand-status-report.pdf",
   title: "Project & Demand Status Report",
   subtitle: "Weekly Update · Friday, 17 July 2026",
@@ -411,10 +411,72 @@ export const demandReport = {
   ],
 };
 
+// ==== Report-mapping rules — single source of truth for portal assignment ====
+// The Project & Demand data above is the one structured source; the two portals
+// below are derived views of it. Every item is assigned to exactly one portal by
+// its Entity / Sector value; unrecognized values are flagged for review instead
+// of being assigned automatically. All totals are computed from the data —
+// never hard-coded — so no project can be lost.
+
+export const CSS_DEMAND_HREF = "css-project-demand.html";
+export const MINISTRY_DEMAND_HREF = "ministry-project-demand.html";
+
+export const MINISTRY_ENTITIES = [
+  "PMO", "MOCA", "WGS", "GSOC", "FCSC",
+  "Performance & Govt Excellence", "Strategy & Innovation", "Govt Service Sector",
+  "MBRCGI / Strategy & Innovation", "Govt Development & Future Office",
+  "GEEO", "Office of Secretary-General",
+];
+
+export const isCssEntity = (e) => e === "CSS";
+export const isMinistryEntity = (e) => MINISTRY_ENTITIES.includes(e);
+export const isFlaggedEntity = (e) => !isCssEntity(e) && !isMinistryEntity(e);
+// Flagged items resolve to the ministry portal href, where the review panel lives.
+export const demandHrefFor = (e) => (isCssEntity(e) ? CSS_DEMAND_HREF : MINISTRY_DEMAND_HREF);
+
+// Split the (possibly overridden) Project & Demand report into one portal view.
+// Returns the variant's sections plus every flagged item; sections and groups
+// left empty by the split are dropped.
+export function splitDemand(report, variant) {
+  const src = report || demandReport;
+  const keep = variant === "css" ? isCssEntity : isMinistryEntity;
+  const flagged = [];
+  const sections = src.sections
+    .map((sec) => ({
+      ...sec,
+      groups: sec.groups
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((it) => {
+            if (isFlaggedEntity(it.entity)) {
+              flagged.push({ name: it.name, entity: it.entity, section: sec.title });
+              return false;
+            }
+            return keep(it.entity);
+          }),
+        }))
+        .filter((g) => g.items.length > 0),
+    }))
+    .filter((sec) => sec.groups.length > 0);
+  return { sections, flagged };
+}
+
+// Flatten a variant's sections into one item list for stats, filters and counts.
+export function flattenDemand(sections) {
+  const all = [];
+  sections.forEach((sec) =>
+    sec.groups.forEach((g) =>
+      g.items.forEach((it) => all.push({ ...it, secId: sec.id, secTitle: sec.title, owner: g.label }))
+    )
+  );
+  return all;
+}
+
 export const archive = [
   { week: "Week of 13 July 2026", date: "17 July 2026", reports: [
     { title: wgsReport.title, href: wgsReport.href, pdf: wgsReport.pdf, status: wgsReport.overallStatus },
-    { title: demandReport.title, href: demandReport.href, pdf: demandReport.pdf, status: demandReport.overallStatus },
+    { title: "Ministry Project & Demand", href: MINISTRY_DEMAND_HREF, pdf: demandReport.pdf, status: demandReport.overallStatus },
+    { title: "CSS Project & Demand", href: CSS_DEMAND_HREF, pdf: demandReport.pdf, status: demandReport.overallStatus },
   ] },
 ];
 
@@ -456,11 +518,12 @@ export const themes = {
   "Sage":       { "--bg": "#EFF3F1", "--sf": "#FFFFFF", "--sf2": "#E6ECE8", "--bd": "#D8E0DA", "--ink": "#2A3B33", "--mut": "#7B897F", "--acc": "#4A7A5C", "--accInk": "#FFFFFF", "--glow": "rgba(74,122,92,0.10)" },
 };
 
-// Flat search index across both reports.
+// Flat search index across all report portals.
 export function buildSearchIndex() {
   const ix = [];
   ix.push({ type: "Report", title: wgsReport.title, text: wgsReport.summary, href: wgsReport.href, meta: wgsReport.date });
-  ix.push({ type: "Report", title: demandReport.title, text: demandReport.summary, href: demandReport.href, meta: demandReport.date });
+  ix.push({ type: "Report", title: "Ministry Project & Demand", text: demandReport.summary, href: MINISTRY_DEMAND_HREF, meta: demandReport.date });
+  ix.push({ type: "Report", title: "CSS Project & Demand", text: demandReport.summary, href: CSS_DEMAND_HREF, meta: demandReport.date });
   wgsReport.meetings.forEach(m => ix.push({ type: "Meeting", title: m.title, text: m.attendees + " " + m.outcomes.join(" "), href: wgsReport.href + "#meetings", meta: wgsReport.weekOf }));
   wgsReport.decisions.forEach(d => ix.push({ type: "Decision", title: d.item, text: d.detail, href: wgsReport.href + "#decisions", meta: d.status }));
   wgsReport.risks.forEach(r => ix.push({ type: "Risk", title: r.risk, text: r.mitigation, href: wgsReport.href + "#decisions", meta: r.level }));
@@ -469,7 +532,7 @@ export function buildSearchIndex() {
     type: sec.id === "demands" ? "Demand" : sec.id === "projects" ? "Project" : "Release",
     title: it.name,
     text: [it.entity, g.label, it.updates.join(" "), it.next.join(" ")].join(" "),
-    href: demandReport.href + "#" + sec.id,
+    href: demandHrefFor(it.entity) + "#" + sec.id,
     meta: (g.label ? g.label + " · " : "") + it.status + (it.goLive && it.goLive !== "—" ? " · Go-live " + it.goLive : ""),
   }))));
   return ix;
