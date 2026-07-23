@@ -20,7 +20,7 @@ const I18N = {
     searchPh: "Search projects, updates, next steps…", filtersBtn: "Filters", allSections: "All sections",
     allEntities: "All entities", allStatuses: "All statuses", allOwners: "All owners / releases",
     showing: "Showing", of: "of", reset: "Reset filters", section: "Section", items: "items",
-    updatesT: "Status & Updates", nextT: "Next Steps", goLive: "Go-live",
+    updatesT: "Status & Updates", nextT: "Next Steps", outcomeT: "Project Outcome", goLive: "Go-live",
     noUpdates: "No updates recorded this week.", noMatch: "No items in this section match the current filters.",
     completed: "Completed", inProgress: "In Progress",
   },
@@ -34,7 +34,7 @@ const I18N = {
     searchPh: "ابحث في المشاريع والمستجدات والخطوات التالية…", filtersBtn: "الفلاتر", allSections: "كل الأقسام",
     allEntities: "كل الجهات", allStatuses: "كل الحالات", allOwners: "كل المسؤولين / الإصدارات",
     showing: "عرض", of: "من", reset: "إعادة تعيين", section: "قسم", items: "عنصر",
-    updatesT: "الحالة والمستجدات", nextT: "الخطوات التالية", goLive: "الإطلاق",
+    updatesT: "الحالة والمستجدات", nextT: "الخطوات التالية", outcomeT: "مُخرَج المشروع", goLive: "الإطلاق",
     noUpdates: "لا توجد مستجدات مسجلة هذا الأسبوع.", noMatch: "لا توجد عناصر في هذا القسم مطابقة للتصفية الحالية.",
     completed: "مكتمل", inProgress: "قيد التنفيذ",
   },
@@ -67,6 +67,7 @@ if (weekId) {
         items: (g.items || []).map((it) => ({
           name: it.name || "", entity: it.entity || "—", status: it.status || "TBC",
           updates: it.updates || [], next: it.next || [], goLive: it.goLive || "TBD",
+          outcome: it.outcome || "",
         })),
       })),
     }));
@@ -96,7 +97,7 @@ const matchItem = (it) => {
     (state.fOwner === "All" || it.owner === state.fOwner) &&
     (!query ||
       (it.name + " " + it.entity + " " + it.owner + " " + it.goLive + " " + it.status + " " +
-        it.updates.join(" ") + " " + it.next.join(" ")).toLowerCase().includes(query))
+        it.updates.join(" ") + " " + it.next.join(" ") + " " + (it.outcome || "")).toLowerCase().includes(query))
   );
 };
 
@@ -110,10 +111,14 @@ function itemCardHTML(it, key) {
   const goLiveLabel = it.goLive === "Live" ? trS("Live") : trD(it.goLive);
   const updates = it.updates.map((u) => `<div class="detail-line"><span class="b">·</span><span>${esc(tr(u))}</span></div>`).join("");
   const next = it.next.map((u) => `<div class="detail-line"><span class="b next">→</span><span>${esc(tr(u))}</span></div>`).join("");
+  const outcome = it.outcome
+    ? `<div class="detail-block outcome-block"${it.updates.length || it.next.length ? ' style="padding-top:0"' : ""}><span class="detail-label outcome">${esc(L().outcomeT)}</span><div class="detail-line"><span class="b outcome" aria-hidden="true">◇</span><span>${esc(tr(it.outcome))}</span></div></div>`
+    : "";
   const detail =
     (it.updates.length ? `<div class="detail-block"><span class="detail-label">${esc(L().updatesT)}</span>${updates}</div>` : "") +
     (it.next.length ? `<div class="detail-block"${it.updates.length ? ' style="padding-top:0"' : ""}><span class="detail-label next">${esc(L().nextT)}</span>${next}</div>` : "") +
-    (!it.updates.length && !it.next.length ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
+    outcome +
+    (!it.updates.length && !it.next.length && !it.outcome ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
   return `<article class="item-card${open ? " open" : ""}" data-key="${esc(key)}">
     <button type="button" class="item-head" aria-expanded="${open}">
       <div class="item-title-row"><span class="item-name">${esc(tr(it.name))}</span><span class="chev-i" aria-hidden="true">▾</span></div>
@@ -276,7 +281,7 @@ function build() {
     <section id="overview" aria-label="Portfolio overview">
       <h2 class="section-title">${esc(l.overviewT)}</h2>
       <div class="stat-grid">${statsHTML}</div>
-      <div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>
+      ${entList.length > 1 ? `<div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>` : ""}
     </section>
 
     ${flaggedHTML}

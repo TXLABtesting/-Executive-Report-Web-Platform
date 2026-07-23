@@ -188,9 +188,12 @@ select{min-height:44px}
 .detail-block{padding-top:14px;display:flex;flex-direction:column;gap:8px}
 .detail-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mut)}
 .detail-label.next{color:#2B6CB0}
+.detail-label.outcome{color:#7A5AA6}
 .detail-line{display:flex;gap:9px;font-size:14px;line-height:1.6;color:var(--ink)}
 .detail-line .b{color:var(--acc);font-weight:700}
 .detail-line .b.next{color:#2B6CB0}
+.detail-line .b.outcome{color:#7A5AA6}
+.outcome-block .detail-line{font-style:italic;color:var(--mut)}
 .no-updates{padding-top:14px;font-size:13px;color:var(--mut)}
 .no-match{font-size:14px;color:var(--mut);margin-top:14px}
 
