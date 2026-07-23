@@ -264,7 +264,7 @@ function renderArchive() {
             .map(
               (r) => `<div class="week-report-row">
                 <a class="report-link" href="${esc(r.href)}">${esc(r.title)}</a>
-                <a class="pdf-link" href="${esc(r.pdf)}" download>PDF ↓</a>
+                ${r.pdf && r.pdf !== "#" ? `<a class="pdf-link" href="${esc(r.pdf)}" download>PDF ↓</a>` : ""}
               </div>`
             )
             .join("")}

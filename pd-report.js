@@ -78,6 +78,11 @@ if (weekId) {
       date: w.date,
       pdf: w.pdfData || R.pdf,
     };
+  } else {
+    // Not an uploaded week — resolve a built-in historical snapshot so archived
+    // weeks stay viewable after the live report is updated.
+    const hist = m.findDemandReport(weekId);
+    if (hist) R = hist;
   }
 }
 
@@ -183,15 +188,17 @@ function build() {
   const title = tr(TITLE);
   document.title = title;
 
-  // Week selector: uploaded demand weeks (distinct pages) + the current live
-  // report. All published archive weeks resolve to this same live page, so the
-  // base is a single "current" option labelled from the newest archive week.
+  // Week selector: uploaded demand weeks (distinct pages) + the built-in weekly
+  // reports (the live report plus historical snapshots), so every archived week
+  // stays viewable on its own data.
   const uploaded = storedWeeks("demand").filter((x) => x.data);
-  const current = m.archive[0];
-  const baseOpts = [{ v: SELF, label: (current ? trD(current.week) + " · " : "") + trD(R.date) }];
+  const builtinOpts = [m.demandReport, ...m.demandHistory].map((r) => ({
+    v: r.id === m.demandReport.id ? SELF : SELF + "?week=" + r.id,
+    label: trD(r.date),
+  }));
   const weekOpts = [
     ...uploaded.map((w) => ({ v: SELF + "?week=" + w.id, label: trD(w.week) + " · " + trD(w.date) })),
-    ...baseOpts,
+    ...builtinOpts,
   ];
   const curWeek = weekId ? SELF + "?week=" + weekId : SELF;
 
@@ -271,7 +278,7 @@ function build() {
         <span class="status-pill"><span class="dot"></span>${esc(trS(R.overallStatus))}</span>
       </div>
       <div class="hero-actions no-print">
-        <a class="btn-primary" href="${esc(R.pdf)}" download>${esc(l.downloadPdf)}</a>
+        ${R.pdf ? `<a class="btn-primary" href="${esc(R.pdf)}" download>${esc(l.downloadPdf)}</a>` : ""}
         <select id="weekSelect" class="week-select" aria-label="Select week">
           ${weekOpts.map((w) => `<option value="${esc(w.v)}"${w.v === curWeek ? " selected" : ""}>${esc(w.label)}</option>`).join("")}
         </select>
