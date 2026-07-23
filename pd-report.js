@@ -178,23 +178,23 @@ function build() {
   const title = tr(TITLE);
   document.title = title;
 
-  // Week selector options: uploaded demand weeks + published archive weeks.
+  // Week selector: uploaded demand weeks (distinct pages) + the current live
+  // report. All published archive weeks resolve to this same live page, so the
+  // base is a single "current" option labelled from the newest archive week.
   const uploaded = storedWeeks("demand").filter((x) => x.data);
-  const baseOpts = m.archive.map((w) => {
-    const r = w.reports.find((x) => x.title === TITLE) || w.reports[0];
-    return { v: r.href, label: trD(w.week) + " · " + trD(w.date) };
-  });
+  const current = m.archive[0];
+  const baseOpts = [{ v: SELF, label: (current ? trD(current.week) + " · " : "") + trD(R.date) }];
   const weekOpts = [
     ...uploaded.map((w) => ({ v: SELF + "?week=" + w.id, label: trD(w.week) + " · " + trD(w.date) })),
     ...baseOpts,
   ];
-  const curWeek = weekId ? SELF + "?week=" + weekId : (baseOpts[0] ? baseOpts[0].v : "");
+  const curWeek = weekId ? SELF + "?week=" + weekId : SELF;
 
   // Dynamic portfolio stats — computed from this portal's items, never hard-coded.
   const statDefs = [
     { n: ALL.length, label: "Total Projects", sub: "All projects, releases & demands", cls: "hl" },
-    { n: ALL.filter((x) => x.secId !== "demands").length, label: "Projects & enhancements", sub: "Active deliveries & releases", cls: "" },
-    { n: ALL.filter((x) => x.secId === "demands").length, label: "Demands", sub: "Backlog & requests", cls: "" },
+    { n: ALL.filter((x) => !x.secId.includes("demand")).length, label: "Projects & enhancements", sub: "Active deliveries & releases", cls: "" },
+    { n: ALL.filter((x) => x.secId.includes("demand")).length, label: "Demands", sub: "Backlog & requests", cls: "" },
     { n: ALL.filter((x) => x.status === "Live").length, label: "Live", sub: "Currently in production", cls: "live" },
   ];
   const statsHTML = statDefs

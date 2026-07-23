@@ -5,6 +5,9 @@ export const STATUS_AR = {
   "Live": "قيد التشغيل", "Complete": "مكتمل", "Closed": "مغلق", "In Progress": "قيد التنفيذ",
   "Pending": "قيد الانتظار", "Planned": "مخطط له", "On Hold": "متوقف مؤقتًا", "Not Started": "لم يبدأ",
   "TBC": "TBC", "HIGH": "مرتفع", "MED": "متوسط", "LOW": "منخفض",
+  "On Track": "على المسار", "Initiation": "مرحلة البدء", "Closure": "مرحلة الإغلاق",
+  "Under Scope Analysis": "تحليل النطاق", "With Business": "لدى فريق الأعمال", "Proposal Review": "مراجعة العرض",
+  "RFI": "طلب معلومات (RFI)", "Delayed by Business": "مؤجل من فريق الأعمال", "Not active": "غير نشط",
 };
 
 export const TYPE_AR = { "Report": "تقرير", "Project": "مشروع", "Demand": "طلب", "Release": "إصدار", "Meeting": "اجتماع", "Action": "إجراء", "Risk": "خطر", "Decision": "قرار" };
