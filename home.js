@@ -195,8 +195,6 @@ function renderStatic() {
   $("h1a").textContent = l.h1a;
   $("h1b").textContent = l.h1b;
   $("taglineText").textContent = l.tagline;
-  $("lastUpdatedLabel").textContent = l.lastUpdated;
-  $("lastUpdatedVal").textContent = trDate(m.site.lastUpdated);
   $("searchInput").placeholder = l.searchPh;
   $("archiveTitle").textContent = l.archive;
   $("archiveInput").placeholder = l.archivePh;
