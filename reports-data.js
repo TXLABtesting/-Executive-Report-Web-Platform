@@ -654,7 +654,7 @@ export const demandReportPrev = {
         P("MOCASmart Release 5 – Business Mission", "CSS", "In Progress",
           ["Received the oracle flow for the bulk approval for the SH", "Business testing session has been completed and shared the feedback with the vendor", "Initiate the survey process from the customer pulse"],
           ["Receive the figma design for approval process scenarios", "Complete the development", "Update the SOW and get the business sign off"], "31 July"),
-        P("Events Calendar (MOCASmart)", "—", "In Progress",
+        P("Events Calendar (MOCASmart)", "CSS", "In Progress",
           ["Start the development from Kalvad side", "The development has been completed", "Shared the test version with the buisness to do the testing"],
           ["Start the deployment process", "Go live"], "31 July"),
       ] },

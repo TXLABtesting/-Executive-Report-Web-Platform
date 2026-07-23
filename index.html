@@ -15,7 +15,8 @@
     --font-display:'Space Grotesk','IBM Plex Sans Arabic',sans-serif;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;overflow-x:hidden}
+  /* clip (not hidden) prevents horizontal scroll without breaking sticky headers */
+  html,body{margin:0;padding:0;overflow-x:clip}
   body{
     background:var(--bg);color:var(--ink);font-family:var(--font-body);
     -webkit-font-smoothing:antialiased;
