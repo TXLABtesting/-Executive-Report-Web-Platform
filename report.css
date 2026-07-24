@@ -38,19 +38,26 @@ select{min-height:44px}
 .report-header{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--bd)}
 .header-inner{max-width:var(--pagew);margin:0 auto;padding:14px 20px 10px;display:flex;align-items:center;gap:12px}
 .back-btn{
-  display:inline-flex;align-items:center;gap:7px;color:var(--ink);background:var(--sf);
+  display:inline-flex;align-items:center;gap:7px;color:var(--ink);background:var(--sf);flex-shrink:0;
   border:1px solid var(--bd);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap;
 }
 .back-btn:hover{border-color:var(--acc);color:var(--acc)}
 .back-arrow{font-size:15px;line-height:1}
-.header-titles{display:flex;flex-direction:column;gap:1px;min-width:0}
-.header-kicker{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mut)}
-.header-name{
-  font-size:15px;font-weight:600;font-family:var(--font-display);
+/* Title takes the space between the two buttons and never overlaps them. */
+.header-titles{flex:1 1 auto;display:flex;flex-direction:column;gap:1px;min-width:0}
+.header-kicker{
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mut);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+.header-name{
+  font-size:15px;font-weight:600;font-family:var(--font-display);line-height:1.25;
+  /* Wrap to at most two lines, then ellipsis — the title stays readable without
+     spilling onto the Home / language buttons on narrow phones. */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  overflow-wrap:anywhere;
+}
 .lang-btn{
-  margin-inline-start:auto;flex-shrink:0;border:1px solid var(--bd);background:var(--sf);color:var(--ink);
+  margin-inline-start:8px;flex-shrink:0;border:1px solid var(--bd);background:var(--sf);color:var(--ink);
   border-radius:999px;padding:10px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
 }
 .section-nav{
