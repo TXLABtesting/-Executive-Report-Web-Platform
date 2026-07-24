@@ -1,0 +1,24 @@
+{
+  "name": "MOCA Executive Reports",
+  "short_name": "Exec Reports",
+  "description": "Ministry of Cabinet Affairs — Digital Transformation Department executive reports (Project & Demand).",
+  "lang": "en",
+  "dir": "auto",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAF7F2",
+  "theme_color": "#2F6F62",
+  "categories": ["business", "government", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Ministry Project & Demand", "url": "ministry-project-demand.html" },
+    { "name": "CSS Project & Demand", "url": "css-project-demand.html" }
+  ]
+}
