@@ -439,17 +439,9 @@ function build() {
         </section>`
       : "";
 
-  // Attention lists.
-  const onHold = ALL.filter((it) => it.status === "On Hold");
-  const pendings = ALL.filter((it) => it.status === "Pending");
-  const nearTerm = ALL.filter((it) => /Jul|Jun|Aug/.test(it.goLive) && it.goLive !== "Live")
-    .map((it) => ({ ...it, overdue: /Jun/.test(it.goLive) }))
-    .sort((a, b) => (a.overdue ? 0 : 1) - (b.overdue ? 0 : 1));
-
   const navItems = [
     { id: "overview", label: l.navOverview },
     ...SECTIONS.map((sec) => ({ id: sec.id, label: sec.num + " " + tr(sec.title) })),
-    { id: "attention", label: l.navAttention, accent: true },
   ];
 
   const optionsHTML = (list, all, cur) =>
@@ -518,24 +510,6 @@ function build() {
     </section>
 
     <div id="pdSections" style="display:flex;flex-direction:column;gap:40px"></div>
-
-    <section id="attention" class="attention-card" aria-label="Requires management attention">
-      <div class="attention-head">${esc(l.attentionTitle)}</div>
-      <div class="attention-grid">
-        <div class="attention-col">
-          <span class="att-label" style="color:#2B6CB0">${esc(l.nearTermT)}</span>
-          ${nearTerm.map((n) => `<div class="att-line"><span class="att-date">${esc(trD(n.goLive))}</span><span>${esc(tr(n.name))}</span>${n.overdue ? `<span class="past-date">${esc(l.pastDate)}</span>` : ""}</div>`).join("")}
-        </div>
-        <div class="attention-col">
-          <span class="att-label" style="color:#6E6A61">${esc(l.onHoldT)} — ${onHold.length}</span>
-          ${onHold.map((h) => `<div class="att-line"><span class="b" style="color:#8A857A">⏸</span><span>${esc(tr(h.name))} <span class="sub">· ${esc(h.entity)}</span></span></div>`).join("")}
-        </div>
-        <div class="attention-col">
-          <span class="att-label" style="color:#9C6A1E">${esc(l.awaitingT)} — ${pendings.length}</span>
-          ${pendings.map((p) => `<div class="att-line"><span class="b" style="color:#9C6A1E">▲</span><span>${esc(tr(p.name))} <span class="sub">· ${esc(p.entity)}</span></span></div>`).join("")}
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">Ministry of Cabinet Affairs · ${esc(tr(R.dept))} · ${esc(trD(R.date))}</footer>`;
@@ -592,7 +566,7 @@ function build() {
   });
 
   renderSections();
-  initScrollSpy(["overview", ...SECTIONS.map((s) => s.id), "attention"]);
+  initScrollSpy(["overview", ...SECTIONS.map((s) => s.id)]);
 }
 
 build();
