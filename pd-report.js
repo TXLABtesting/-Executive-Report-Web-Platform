@@ -23,6 +23,7 @@ const I18N = {
     updatesT: "Status & Updates", nextT: "Next Steps", outcomeT: "Project Outcome", goLive: "Go-live",
     noUpdates: "No updates recorded this week.", noMatch: "No items in this section match the current filters.",
     completed: "Completed", inProgress: "In Progress",
+    shareCard: "Share card", sharing: "Preparing image…", shareFail: "Sharing not supported here — image downloaded instead.", shareErr: "Could not create the image.",
   },
   ar: {
     flaggedT: "بحاجة إلى مراجعة — جهة / قطاع غير معرّف", flaggedEntity: "الجهة",
@@ -37,6 +38,7 @@ const I18N = {
     updatesT: "الحالة والمستجدات", nextT: "الخطوات التالية", outcomeT: "مُخرَج المشروع", goLive: "الإطلاق",
     noUpdates: "لا توجد مستجدات مسجلة هذا الأسبوع.", noMatch: "لا توجد عناصر في هذا القسم مطابقة للتصفية الحالية.",
     completed: "مكتمل", inProgress: "قيد التنفيذ",
+    shareCard: "مشاركة البطاقة", sharing: "جارٍ تجهيز الصورة…", shareFail: "المشاركة غير مدعومة هنا — تم تنزيل الصورة بدلًا من ذلك.", shareErr: "تعذّر إنشاء الصورة.",
   },
 };
 
@@ -50,6 +52,10 @@ const state = {
   showFilters: false,
   open: {}, // item key -> false when collapsed; items start expanded
 };
+
+// item key -> { item, owner } for the rendered cards, so the share button can
+// redraw a card as an image on demand. Rebuilt on every renderSections().
+let itemsByKey = {};
 
 applyTheme();
 
@@ -133,7 +139,7 @@ function itemCardHTML(it, key) {
         <span class="golive-chip">${esc(L().goLive)}: ${esc(goLiveLabel)}</span>
       </div>
     </button>
-    <div class="item-detail">${detail}</div>
+    <div class="item-detail">${detail}<div class="item-actions no-print"><button type="button" class="share-btn" data-share="${esc(key)}"><span class="share-ic" aria-hidden="true">⤴</span>${esc(L().shareCard)}</button></div></div>
   </article>`;
 }
 
@@ -141,6 +147,7 @@ function sectionsHTML() {
   const { tr, isAr } = t();
   let shown = 0;
   let ki = 0;
+  itemsByKey = {};
   const html = SECTIONS.map((sec) => {
     let count = 0;
     const groups = sec.groups
@@ -150,6 +157,7 @@ function sectionsHTML() {
             const key = sec.id + "-" + ki++;
             if (!matchItem({ ...it, secId: sec.id, owner: g.label })) return null;
             count++; shown++;
+            itemsByKey[key] = { item: it, owner: g.label, secTitle: sec.title };
             return itemCardHTML(it, key);
           })
           .filter(Boolean);
@@ -178,6 +186,192 @@ function renderSections() {
   document.getElementById("pdSections").innerHTML = html;
   document.getElementById("shownCount").textContent = `${L().showing} ${shown} ${L().of} ${ALL.length}`;
   document.getElementById("resetBtn").hidden = !filtersActive();
+}
+
+// ---- Share a single project card as an image ----------------------------
+// The card is redrawn onto a canvas (no external library) and shared via the
+// Web Share API — which on mobile opens the native sheet (WhatsApp, social,
+// etc.). Where file sharing is unavailable (most desktops) the PNG downloads.
+
+let toastTimer = null;
+function toast(msg) {
+  let el = document.getElementById("pdToast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "pdToast";
+    el.className = "pd-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
+}
+
+function wrapLines(ctx, text, maxW) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const cand = line ? line + " " + w : w;
+    if (line && ctx.measureText(cand).width > maxW) { lines.push(line); line = w; }
+    else line = cand;
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+
+async function renderCardImage(reg) {
+  const it = reg.item;
+  const { tr, trS, trD, isAr } = t();
+  try { await document.fonts.ready; } catch {}
+
+  const cs = getComputedStyle(document.documentElement);
+  const cv = (n, fb) => (cs.getPropertyValue(n).trim() || fb);
+  const INK = cv("--ink", "#22312E"), MUT = cv("--mut", "#75807B"), ACC = cv("--acc", "#2F6F62"),
+        BD = cv("--bd", "#E6E0D4"), SF = cv("--sf", "#FFFFFF"), SF2 = cv("--sf2", "#F3EFE7");
+  const NEXTC = "#2B6CB0", OUTC = "#7A5AA6";
+  const b = badge(it.status);
+
+  const W = 760, PAD = 44, CW = W - PAD * 2;
+  const x0 = isAr ? W - PAD : PAD;
+  const dispW = 480, dfont = '"Space Grotesk", system-ui, sans-serif', bfont = '"IBM Plex Sans", system-ui, sans-serif';
+  const goLiveLabel = it.goLive === "Live" ? trS("Live") : trD(it.goLive);
+
+  const meas = document.createElement("canvas").getContext("2d");
+  meas.direction = isAr ? "rtl" : "ltr";
+
+  // paint(ctx, draw): walks the layout; returns the total height. Called once to
+  // measure (draw=false) and once to render (draw=true) so heights stay in sync.
+  function paint(ctx, draw) {
+    let y = PAD + 10;
+    ctx.textBaseline = "top";
+    ctx.direction = isAr ? "rtl" : "ltr";
+    ctx.textAlign = isAr ? "right" : "left";
+
+    const block = (text, font, color, size, gap) => {
+      y += gap || 0;
+      ctx.font = font;
+      const lh = Math.round(size * 1.42);
+      for (const ln of wrapLines(ctx, text, CW)) {
+        if (draw) { ctx.fillStyle = color; ctx.fillText(ln, x0, y); }
+        y += lh;
+      }
+    };
+    const bullets = (arr, marker, mcolor, color, italic, size, gap) => {
+      y += gap || 0;
+      const indent = 22, lh = Math.round(size * 1.5);
+      const tx = isAr ? x0 - indent : x0 + indent;
+      ctx.font = (italic ? "italic " : "") + "400 " + size + 'px ' + bfont;
+      for (const raw of arr) {
+        const lines = wrapLines(ctx, tr(raw), CW - indent);
+        lines.forEach((ln, i) => {
+          if (draw) {
+            ctx.fillStyle = color; ctx.fillText(ln, tx, y);
+            if (i === 0) { ctx.font = "700 " + size + 'px ' + bfont; ctx.fillStyle = mcolor; ctx.fillText(marker, x0, y); ctx.font = (italic ? "italic " : "") + "400 " + size + 'px ' + bfont; }
+          }
+          y += lh;
+        });
+      }
+    };
+    const label = (text, color) => block(text.toUpperCase(), "700 13px " + dfont, color, 13, 20);
+
+    // Kicker + title
+    block(tr(R.dept), "600 13px " + dfont, MUT, 13, 0);
+    block(tr(it.name), "700 29px " + dfont, INK, 29, 8);
+
+    // Chips: status, entity, go-live
+    y += 18;
+    const chips = [
+      { t: trS(it.status), bg: b.bg, fg: b.fg, dot: b.dot },
+      { t: it.entity, bg: SF2, fg: MUT, bd: BD },
+      { t: L().goLive + ": " + goLiveLabel, bg: SF2, fg: ACC },
+    ];
+    const chipH = 30, chipPad = 13, chipGap = 8, chipFont = "700 13px " + bfont;
+    ctx.font = chipFont;
+    let cx = isAr ? x0 : x0;
+    for (const c of chips) {
+      const hasDot = !!c.dot;
+      const tw = ctx.measureText(c.t).width;
+      const w = tw + chipPad * 2 + (hasDot ? 14 : 0);
+      const rx = isAr ? cx - w : cx;
+      if (draw) {
+        ctx.fillStyle = c.bg;
+        ctx.beginPath(); ctx.roundRect(rx, y, w, chipH, 999); ctx.fill();
+        if (c.bd) { ctx.strokeStyle = c.bd; ctx.lineWidth = 1; ctx.stroke(); }
+        let tX = isAr ? rx + w - chipPad : rx + chipPad;
+        if (hasDot) {
+          const dotX = isAr ? tX - 4 : rx + chipPad + 4;
+          ctx.fillStyle = c.dot; ctx.beginPath(); ctx.arc(dotX, y + chipH / 2, 4, 0, Math.PI * 2); ctx.fill();
+          tX = isAr ? tX - 14 : rx + chipPad + 14;
+        }
+        ctx.fillStyle = c.fg; ctx.textAlign = isAr ? "right" : "left"; ctx.textBaseline = "middle";
+        ctx.fillText(c.t, tX, y + chipH / 2 + 1);
+        ctx.textBaseline = "top";
+      }
+      cx = isAr ? cx - w - chipGap : cx + w + chipGap;
+    }
+    y += chipH;
+
+    // Divider
+    y += 22;
+    if (draw) { ctx.strokeStyle = BD; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke(); }
+
+    if (it.updates && it.updates.length) { label(L().updatesT, MUT); bullets(it.updates, "·", ACC, INK, false, 16, 8); }
+    if (it.next && it.next.length) { label(L().nextT, NEXTC); bullets(it.next, "→", NEXTC, INK, false, 16, 8); }
+    if (it.outcome) { label(L().outcomeT, OUTC); bullets([it.outcome], "◇", OUTC, MUT, true, 16, 8); }
+
+    // Footer
+    y += 26;
+    if (draw) { ctx.strokeStyle = BD; ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke(); }
+    y += 16;
+    block("Ministry of Cabinet Affairs · " + tr(TITLE) + " · " + trD(R.date), "500 12px " + bfont, MUT, 12, 0);
+    y += PAD - 8;
+    return y;
+  }
+
+  const H = Math.ceil(paint(meas, false));
+  const scale = Math.min(3, (window.devicePixelRatio || 1) * 1.5);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  ctx.fillStyle = SF;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = ACC; // top brand bar
+  ctx.fillRect(0, 0, W, 6);
+  paint(ctx, true);
+
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("toBlob failed"))), "image/png")
+  );
+}
+
+async function shareCard(key) {
+  const reg = itemsByKey[key];
+  if (!reg) return;
+  const { tr } = t();
+  toast(L().sharing);
+  let blob;
+  try { blob = await renderCardImage(reg); }
+  catch (e) { toast(L().shareErr); return; }
+
+  const name = tr(reg.item.name) || "project";
+  const safe = name.replace(/[^\w؀-ۿ]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48) || "project";
+  const file = new File([blob], safe + ".png", { type: "image/png" });
+  const shareText = name + " — " + tr(TITLE);
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name, text: shareText }); return; }
+    catch (err) { if (err && err.name === "AbortError") return; /* fall through to download */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast(L().shareFail);
 }
 
 function build() {
@@ -376,6 +570,8 @@ function build() {
     renderSections();
   });
   document.getElementById("pdSections").addEventListener("click", (e) => {
+    const shareBtn = e.target.closest(".share-btn");
+    if (shareBtn) { e.preventDefault(); shareCard(shareBtn.dataset.share); return; }
     const head = e.target.closest(".item-head");
     if (!head) return;
     const card = head.closest(".item-card");

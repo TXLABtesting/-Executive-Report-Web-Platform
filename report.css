@@ -196,6 +196,23 @@ select{min-height:44px}
 .detail-line .b.next{color:#2B6CB0}
 .detail-line .b.outcome{color:#7A5AA6}
 .outcome-block .detail-line{font-style:italic;color:var(--mut)}
+.item-actions{padding-top:14px;display:flex;border-top:1px dashed var(--bd);margin-top:2px}
+.share-btn{
+  display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:700;
+  color:var(--acc);background:var(--sf2);border:1px solid var(--bd);border-radius:999px;
+  padding:9px 15px;cursor:pointer;margin-top:14px;
+}
+.share-btn:hover{border-color:var(--acc)}
+.share-btn:active{transform:translateY(1px)}
+.share-ic{font-size:15px;line-height:1}
+.pd-toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);
+  background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;
+  font-size:14px;font-weight:600;z-index:100;max-width:90vw;text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,0.22);opacity:0;pointer-events:none;transition:opacity 0.2s,transform 0.2s;
+}
+.pd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (pointer:coarse){ .share-btn{min-height:44px} }
 .no-updates{padding-top:14px;font-size:13px;color:var(--mut)}
 .no-match{font-size:14px;color:var(--mut);margin-top:14px}
 
