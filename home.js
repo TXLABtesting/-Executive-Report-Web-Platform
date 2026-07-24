@@ -58,7 +58,7 @@ const I18N = {
 // again (e.g. re-enable "wgs" and "tec" when those portals go live). A hidden
 // portal is also kept out of the weekly archive and global search so it is not
 // reachable while its card is off.
-const HIDDEN_PORTALS = ["wgs", "tec"];
+const HIDDEN_PORTALS = ["tec"];
 const wgsHidden = HIDDEN_PORTALS.includes("wgs");
 // A report link that belongs to a currently hidden portal (only WGS has an
 // internal report page; TEC is an external card with no archive/search entry).

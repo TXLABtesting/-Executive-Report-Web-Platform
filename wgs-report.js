@@ -7,32 +7,32 @@ const SELF = m.wgsReport.href;
 const I18N = {
   en: {
     reportName: "WGS Weekly Status Report", navAttention: "Attention", navGlance: "At a Glance", navMeetings: "Meetings",
-    navWorkstream: "Workstream", navSalesforce: "Salesforce", navDecisions: "Decisions & Risks", navActions: "Actions",
+    navWorkstream: "Workstream", navSalesforce: "AI & Security", navDecisions: "Decisions & Risks", navActions: "Actions",
     lastUpdated: "Last updated", back: "Home", downloadPdf: "Download original PDF",
-    attentionTitle: "Requires Management Attention", risks3: "Programme Risks — 3 Medium",
+    attentionTitle: "Requires Management Attention", risks3: "Programme Risks",
     decisionsIP: "Open Decisions — In Progress", pendingA: "Pending Actions", glanceT: "Programme at a Glance",
-    sessionsHeld: "Sessions Held", sfOnboarding: "Salesforce Onboarding",
-    meetingsT: "Meetings Held", meetingsSub: "7 sessions completed · MOMs issued · Actions in progress",
+    sessionsHeld: "Sessions Held", sfOnboarding: "AI Scope",
+    meetingsT: "Meetings Held", meetingsSub: "3 sessions completed · MOMs issued · Actions in progress",
     keyOutcomes: "Key Outcomes", attendees: "Attendees", parties: "Parties",
-    wsT: "Workstream Focus — Community Portal", wsPrefix: "Workstream Focus — ", phase: "Phase",
+    wsT: "Workstream Focus — Program Portal", wsPrefix: "Workstream Focus — ", phase: "Phase",
     currentStatus: "Current Status", openDecisions: "Open Decisions", nextStepsT: "Immediate Next Steps",
-    sfT: "Salesforce Integration — Deep Dive", sfSharedT: "What Was Shared With Salesforce", sfDecT: "Decisions & Next Steps",
+    sfT: "AI Capability & Security — Deep Dive", sfSharedT: "HLD Review Status", sfDecT: "Decisions & Next Steps",
     kdrT: "Key Decisions & Risks", kdrSub: "Items requiring management attention or tracking", risksT: "Programme Risks",
     actionsT: "Action Items & Next Steps", actionsSub: "Current status of this week's action items",
     owner: "Owner", target: "Target", all: "All",
   },
   ar: {
     reportName: "تقرير الحالة الأسبوعي — WGS", navAttention: "انتباه", navGlance: "لمحة عامة", navMeetings: "الاجتماعات",
-    navWorkstream: "مسار العمل", navSalesforce: "سيلزفورس", navDecisions: "القرارات والمخاطر", navActions: "الإجراءات",
+    navWorkstream: "مسار العمل", navSalesforce: "الذكاء والأمن", navDecisions: "القرارات والمخاطر", navActions: "الإجراءات",
     lastUpdated: "آخر تحديث", back: "الرئيسية", downloadPdf: "تحميل ملف PDF الأصلي",
-    attentionTitle: "يتطلب اهتمام الإدارة", risks3: "مخاطر البرنامج — 3 متوسطة",
+    attentionTitle: "يتطلب اهتمام الإدارة", risks3: "مخاطر البرنامج",
     decisionsIP: "قرارات مفتوحة — قيد التنفيذ", pendingA: "إجراءات معلّقة", glanceT: "البرنامج في لمحة",
-    sessionsHeld: "جلسات منعقدة", sfOnboarding: "تهيئة سيلزفورس",
-    meetingsT: "الاجتماعات المنعقدة", meetingsSub: "اكتملت 7 جلسات · صدرت محاضر الاجتماعات · الإجراءات قيد التنفيذ",
+    sessionsHeld: "جلسات منعقدة", sfOnboarding: "نطاق الذكاء الاصطناعي",
+    meetingsT: "الاجتماعات المنعقدة", meetingsSub: "اكتملت 3 جلسات · صدرت محاضر الاجتماعات · الإجراءات قيد التنفيذ",
     keyOutcomes: "أبرز النتائج", attendees: "الحضور", parties: "الأطراف",
-    wsT: "محور مسار العمل — بوابة المجتمع", wsPrefix: "محور مسار العمل — ", phase: "المرحلة",
+    wsT: "محور مسار العمل — بوابة البرامج", wsPrefix: "محور مسار العمل — ", phase: "المرحلة",
     currentStatus: "الوضع الحالي", openDecisions: "قرارات مفتوحة", nextStepsT: "الخطوات التالية الفورية",
-    sfT: "تكامل سيلزفورس — نظرة معمّقة", sfSharedT: "ما تمت مشاركته مع سيلزفورس", sfDecT: "القرارات والخطوات التالية",
+    sfT: "قدرات الذكاء الاصطناعي والأمن — نظرة معمّقة", sfSharedT: "حالة مراجعة وثيقة HLD", sfDecT: "القرارات والخطوات التالية",
     kdrT: "القرارات والمخاطر الرئيسية", kdrSub: "بنود تتطلب اهتمام الإدارة أو المتابعة", risksT: "مخاطر البرنامج",
     actionsT: "بنود العمل والخطوات التالية", actionsSub: "الحالة الحالية لبنود العمل لهذا الأسبوع",
     owner: "المسؤول", target: "الموعد المستهدف", all: "الكل",
@@ -320,7 +320,7 @@ function build() {
       <div class="attention-head">${esc(l.attentionTitle)}</div>
       <div class="attention-grid">
         <div class="attention-col">
-          <span class="att-label" style="color:#9C6A1E">${esc(overridden ? l.risksT + " — " + risks.length : l.risks3)}</span>
+          <span class="att-label" style="color:#9C6A1E">${esc(l.risksT + " — " + risks.length)}</span>
           ${risks.map((r) => `<a class="att-link" href="#decisions"><span class="b" style="color:#9C6A1E">▲</span><span>${esc(tr(r.risk))}</span></a>`).join("")}
         </div>
         <div class="attention-col">
