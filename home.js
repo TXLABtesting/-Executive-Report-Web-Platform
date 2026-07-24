@@ -175,7 +175,9 @@ function computeWeeks() {
           ]
         : [{ title: u.title, href: uploadHref(u), pdf: u.pdfData || "#" }],
   }));
+  // Show only the current (newest) week in the archive.
   return [...uploaded, ...m.archive]
+    .slice(0, 1)
     .filter((w) => !aql || (w.week + " " + w.date).toLowerCase().includes(aql))
     // Drop report links for hidden portals; drop a week left with no reports.
     .map((w) => ({ ...w, reports: w.reports.filter((r) => !isHiddenReport(r.href)) }))
@@ -195,7 +197,6 @@ function renderStatic() {
   document.title = l.siteTitle;
   $("headerMinistry").textContent = l.ministry;
   $("headerSiteTitle").textContent = l.siteTitle;
-  $("adminLink").textContent = l.admin;
   $("langBtn").textContent = isAr() ? "English" : "العربية";
   $("h1a").textContent = l.h1a;
   $("h1b").textContent = l.h1b;

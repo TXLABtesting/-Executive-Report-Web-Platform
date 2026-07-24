@@ -16,7 +16,7 @@ const I18N = {
     navAttention: "Attention", navOverview: "Overview", lastUpdated: "Last updated", back: "Home",
     downloadPdf: "Download original PDF", attentionTitle: "Requires Management Attention",
     nearTermT: "Near-Term Go-Lives — Jun / Jul / Aug", onHoldT: "On Hold", awaitingT: "Awaiting Direction / Approval",
-    pastDate: "PAST DATE", overviewT: "Overview — Portfolio Summary", byEntity: "Items by Entity / Sector",
+    pastDate: "PAST DATE", overviewT: "Overview — Portfolio Summary", byEntity: "Items by Entity / Sector", byStatus: "Items by Status",
     searchPh: "Search projects, updates, next steps…", filtersBtn: "Filters", allSections: "All sections",
     allEntities: "All entities", allStatuses: "All statuses", allOwners: "All owners / releases",
     showing: "Showing", of: "of", reset: "Reset filters", section: "Section", items: "items",
@@ -31,7 +31,7 @@ const I18N = {
     navAttention: "انتباه", navOverview: "نظرة عامة", lastUpdated: "آخر تحديث", back: "الرئيسية",
     downloadPdf: "تحميل ملف PDF الأصلي", attentionTitle: "يتطلب اهتمام الإدارة",
     nearTermT: "إطلاقات قريبة — يونيو / يوليو / أغسطس", onHoldT: "معلّق", awaitingT: "بانتظار التوجيه / الاعتماد",
-    pastDate: "متأخر", overviewT: "نظرة عامة — ملخص المحفظة", byEntity: "العناصر حسب الجهة / القطاع",
+    pastDate: "متأخر", overviewT: "نظرة عامة — ملخص المحفظة", byEntity: "العناصر حسب الجهة / القطاع", byStatus: "العناصر حسب الحالة",
     searchPh: "ابحث في المشاريع والمستجدات والخطوات التالية…", filtersBtn: "الفلاتر", allSections: "كل الأقسام",
     allEntities: "كل الجهات", allStatuses: "كل الحالات", allOwners: "كل المسؤولين / الإصدارات",
     showing: "عرض", of: "من", reset: "إعادة تعيين", section: "قسم", items: "عنصر",
@@ -124,28 +124,35 @@ const matchItem = (it) => {
 const filtersActive = () =>
   !!(state.q.trim() || state.fSection !== "All" || state.fEntity !== "All" || state.fStatus !== "All" || state.fOwner !== "All");
 
-function itemCardHTML(it, key) {
+// Go-live is hidden for demands (no delivery date) and for Live Projects (the
+// status already says "Live"); Next Steps is hidden for Live Projects.
+const showGoLiveFor = (secId) => !(secId.includes("demand") || secId === "live");
+const showNextFor = (secId) => secId !== "live";
+
+function itemCardHTML(it, key, secId) {
   const { tr, trS, trD } = t();
   const b = badge(it.status);
   const open = state.open[key] !== false;
   const goLiveLabel = goLiveText(it.goLive, tr, trS, trD);
+  const showGoLive = showGoLiveFor(secId);
+  const showNext = showNextFor(secId) && it.next.length;
   const updates = it.updates.map((u) => `<div class="detail-line"><span class="b">·</span><span>${esc(tr(u))}</span></div>`).join("");
   const next = it.next.map((u) => `<div class="detail-line"><span class="b next">→</span><span>${esc(tr(u))}</span></div>`).join("");
   const outcome = it.outcome
-    ? `<div class="detail-block outcome-block"${it.updates.length || it.next.length ? ' style="padding-top:0"' : ""}><span class="detail-label outcome">${esc(L().outcomeT)}</span><div class="detail-line"><span class="b outcome" aria-hidden="true">◇</span><span>${esc(tr(it.outcome))}</span></div></div>`
+    ? `<div class="detail-block outcome-block"${it.updates.length || showNext ? ' style="padding-top:0"' : ""}><span class="detail-label outcome">${esc(L().outcomeT)}</span><div class="detail-line"><span class="b outcome" aria-hidden="true">◇</span><span>${esc(tr(it.outcome))}</span></div></div>`
     : "";
   const detail =
     (it.updates.length ? `<div class="detail-block"><span class="detail-label">${esc(L().updatesT)}</span>${updates}</div>` : "") +
-    (it.next.length ? `<div class="detail-block"${it.updates.length ? ' style="padding-top:0"' : ""}><span class="detail-label next">${esc(L().nextT)}</span>${next}</div>` : "") +
+    (showNext ? `<div class="detail-block"${it.updates.length ? ' style="padding-top:0"' : ""}><span class="detail-label next">${esc(L().nextT)}</span>${next}</div>` : "") +
     outcome +
-    (!it.updates.length && !it.next.length && !it.outcome ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
+    (!it.updates.length && !showNext && !it.outcome ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
   return `<article class="item-card${open ? " open" : ""}" data-key="${esc(key)}">
     <button type="button" class="item-head" aria-expanded="${open}">
       <div class="item-title-row"><span class="item-name">${esc(tr(it.name))}</span><span class="chev-i" aria-hidden="true">▾</span></div>
       <div class="item-chips">
         <span class="badge-sm" style="background:${esc(b.bg)};color:${esc(b.fg)}"><span class="dot" style="background:${esc(b.dot)}"></span>${esc(trS(it.status))}</span>
         <span class="entity-chip">${esc(it.entity)}</span>
-        <span class="golive-chip">${esc(L().goLive)}: ${esc(goLiveLabel)}</span>
+        ${showGoLive ? `<span class="golive-chip">${esc(L().goLive)}: ${esc(goLiveLabel)}</span>` : ""}
       </div>
     </button>
     <div class="item-detail">${detail}<div class="item-actions no-print"><button type="button" class="share-btn" data-share="${esc(key)}"><span class="share-ic" aria-hidden="true">⤴</span>${esc(L().shareCard)}</button></div></div>
@@ -166,14 +173,12 @@ function sectionsHTML() {
             const key = sec.id + "-" + ki++;
             if (!matchItem({ ...it, secId: sec.id, owner: g.label })) return null;
             count++; shown++;
-            itemsByKey[key] = { item: it, owner: g.label, secTitle: sec.title };
-            return itemCardHTML(it, key);
+            itemsByKey[key] = { item: it, owner: g.label, secTitle: sec.title, secId: sec.id };
+            return itemCardHTML(it, key, sec.id);
           })
           .filter(Boolean);
         if (!cards.length) return "";
-        const allDone = g.items.length > 0 && g.items.every((it) => ["Live", "Complete", "Closed"].includes(it.status));
-        const groupChip = `<span class="group-chip ${allDone ? "done" : "wip"}"><span aria-hidden="true">${allDone ? "✓" : "◔"}</span>${esc(allDone ? L().completed : L().inProgress)}</span>`;
-        const head = g.label ? `<div class="owner-head"><span class="owner-chip">${esc(tr(g.label))}</span>${groupChip}</div>` : "";
+        const head = g.label ? `<div class="owner-head"><span class="owner-chip">${esc(tr(g.label))}</span></div>` : "";
         return `<div class="owner-group">${head}<div class="items-grid">${cards.join("")}</div></div>`;
       })
       .join("");
@@ -241,6 +246,8 @@ async function renderCardImage(reg) {
         BD = cv("--bd", "#D8E2EF"), SF = cv("--sf", "#FFFFFF"), SF2 = cv("--sf2", "#EAF1F9");
   const NEXTC = "#2B6CB0", OUTC = "#7A5AA6";
   const b = badge(it.status);
+  const showGoLive = showGoLiveFor(reg.secId || "");
+  const showNext = showNextFor(reg.secId || "");
 
   const W = 760, PAD = 44, CW = W - PAD * 2;
   const x0 = isAr ? W - PAD : PAD;
@@ -289,12 +296,12 @@ async function renderCardImage(reg) {
     block(tr(R.dept), "600 13px " + dfont, MUT, 13, 0);
     block(tr(it.name), "700 29px " + dfont, INK, 29, 8);
 
-    // Chips: status, entity, go-live
+    // Chips: status, entity, go-live (go-live omitted for demands / live projects)
     y += 18;
     const chips = [
       { t: trS(it.status), bg: b.bg, fg: b.fg, dot: b.dot },
       { t: it.entity, bg: SF2, fg: MUT, bd: BD },
-      { t: L().goLive + ": " + goLiveLabel, bg: SF2, fg: ACC },
+      ...(showGoLive ? [{ t: L().goLive + ": " + goLiveLabel, bg: SF2, fg: ACC }] : []),
     ];
     const chipH = 30, chipPad = 13, chipGap = 8, chipFont = "700 13px " + bfont;
     ctx.font = chipFont;
@@ -327,7 +334,7 @@ async function renderCardImage(reg) {
     if (draw) { ctx.strokeStyle = BD; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke(); }
 
     if (it.updates && it.updates.length) { label(L().updatesT, MUT); bullets(it.updates, "·", ACC, INK, false, 16, 8); }
-    if (it.next && it.next.length) { label(L().nextT, NEXTC); bullets(it.next, "→", NEXTC, INK, false, 16, 8); }
+    if (showNext && it.next && it.next.length) { label(L().nextT, NEXTC); bullets(it.next, "→", NEXTC, INK, false, 16, 8); }
     if (it.outcome) { label(L().outcomeT, OUTC); bullets([it.outcome], "◇", OUTC, MUT, true, 16, 8); }
 
     // Footer
@@ -429,6 +436,19 @@ function build() {
     </div>`)
     .join("");
 
+  // Dynamic status distribution — how many On Hold, Not Active, Live, etc.
+  const statusCounts = {};
+  ALL.forEach((it) => { statusCounts[it.status] = (statusCounts[it.status] || 0) + 1; });
+  const statusList = Object.entries(statusCounts).map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
+  const maxS = Math.max(1, ...statusList.map((s) => s.n));
+  const statusHTML = statusList
+    .map((s, i) => `<div class="entity-row">
+      <span class="entity-name"><span class="stat-dot" style="background:${esc(badge(s.name).dot)}"></span>${esc(trS(s.name))}</span>
+      <div class="entity-track"><div class="entity-fill" style="width:${Math.max(4, Math.round((s.n / maxS) * 100))}%;animation-delay:${i * 0.05}s"></div></div>
+      <span class="entity-n">${s.n}</span>
+    </div>`)
+    .join("");
+
   // Flagged-for-review panel (shown on the ministry portal, where review happens).
   const flaggedHTML =
     VARIANT === "ministry" && FLAGGED.length
@@ -470,7 +490,6 @@ function build() {
           <h1>${esc(title)}</h1>
           <span class="hero-sub">${esc(tr(R.subtitle))} · <strong>${esc(l.lastUpdated)}: ${esc(trD(R.date))}</strong></span>
         </div>
-        <span class="status-pill"><span class="dot"></span>${esc(trS(R.overallStatus))}</span>
       </div>
       <div class="hero-actions no-print">
         ${R.pdf ? `<a class="btn-primary" href="${esc(R.pdf)}" download>${esc(l.downloadPdf)}</a>` : ""}
@@ -483,7 +502,10 @@ function build() {
     <section id="overview" aria-label="Portfolio overview">
       <h2 class="section-title">${esc(l.overviewT)}</h2>
       <div class="stat-grid">${statsHTML}</div>
-      ${entList.length > 1 ? `<div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>` : ""}
+      <div class="ov-panels">
+        <div class="entity-panel"><span class="label-caps">${esc(l.byStatus)}</span>${statusHTML}</div>
+        ${entList.length > 1 ? `<div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>` : ""}
+      </div>
     </section>
 
     ${flaggedHTML}

@@ -401,6 +401,12 @@ export const demandReport = {
       ] },
     ] },
     { id: "onhold", num: "05", title: "On Hold / Not Active", groups: [
+      { label: "Banan Taleb", items: [
+        P("MOCA Ride", "CSS", "Delayed by Business",
+          ["The committee has been completed and presented this project", "The decision has been to continue with RSL for Dubai and AD and keep the MOCA cars for the other Emirates"],
+          ["Contract to be signed", "Vendor to do changes requested from business"], "TBD — pending signed contract",
+          "To have an application dedicated for the ministry to provide ride services for the employees"),
+      ] },
       { label: "", items: [
         P("Digital Library", "CSS", "On Hold",
           ["We had a meeting with the AI Office and the vendor to review the proposed solution", "During the discussion, Saqr suggested adding an MCP layer on top of the solution; this would simplify future integrations and enhance the scalability", "The Media Info team will confirm if adding the MCP layer is feasible"],
@@ -411,10 +417,6 @@ export const demandReport = {
         P("Project Dashboard in Executive Dashboard", "CSS", "On Hold",
           ["Waiting for the developer budget to be approved to onboard the developer"],
           ["Once budget approved, onboard the developer to kick off the project"], "TBD — not yet baselined"),
-        P("MOCA Ride", "CSS", "Delayed by Business",
-          ["The committee has been completed and presented this project", "The decision has been to continue with RSL for Dubai and AD and keep the MOCA cars for the other Emirates"],
-          ["Contract to be signed", "Vendor to do changes requested from business"], "TBD — pending signed contract",
-          "To have an application dedicated for the ministry to provide ride services for the employees"),
       ] },
     ] },
     { id: "closed-demands", num: "06", title: "Not Active / Closed Demands", groups: [
