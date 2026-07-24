@@ -567,4 +567,6 @@ export const AR = {
   // ==== 24 July update — Group Email projects ====
   "Faster, standardized, and trackable group email requests with less manual work for IT teams": "طلبات بريد جماعي أسرع وموحّدة وقابلة للتتبّع مع عمل يدوي أقل لفرق تقنية المعلومات",
   "TBD — Currently finalizing the SP plan": "TBD — يجري حاليًا استكمال خطة SP",
+  // ==== Stat sub-labels ====
+  "Active — excludes On Hold & Not Active": "النشطة — باستثناء المعلّقة وغير النشطة",
 };

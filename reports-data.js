@@ -193,6 +193,10 @@ export const demandReport = {
           ["The updated demo of the notification email has been shared with the TX team"],
           ["Align on the next step after receiving the confirmation from Ali about the notification email demo"], "TBD — pending HR confirmation on email design",
           "Automate the contract renewal process"),
+        P("MOCA Ride", "CSS", "Delayed by Business",
+          ["The committee has been completed and presented this project", "The decision has been to continue with RSL for Dubai and AD and keep the MOCA cars for the other Emirates"],
+          ["Contract to be signed", "Vendor to do changes requested from business"], "TBD — pending signed contract",
+          "To have an application dedicated for the ministry to provide ride services for the employees"),
       ] },
       { label: "Noura Almansoori", items: [
         P("Automating the Group Email Creation Process – MOCA Smart App", "CSS", "Initiation",
@@ -220,6 +224,9 @@ export const demandReport = {
           ["We went through the plan and the solution demo", "The previous issue has been fixed"],
           ["The password reset process will use a redirect link; the required steps and user guidance should be added", "The offers section will remain as currently implemented", "The issue related to the Employee Directory and user permissions should be fixed"], "7 Sep 2026",
           "Employees get a secure, embedded AI assistant that can accurately answer HR policy questions and directly handle requests"),
+        P("We the UAE", "PMO", "Delayed by Business",
+          ["We had a meeting last week with the business and vendor teams", "The business team requested changes to both the existing design and the new design"],
+          ["Santhosh is working on implementing all the design changes, business feedback, and suggestions to ensure the demo version aligns with expectations"], "TBD — awaiting business direction (target Aug/Sep)"),
       ] },
       { label: "Shamma Almarri", items: [
         P("WGS Website 2027", "WGS", "Initiation", ["Not yet started"], ["Confirm next step with the project owner"], "31 Dec 2026",
@@ -401,19 +408,10 @@ export const demandReport = {
       ] },
     ] },
     { id: "onhold", num: "05", title: "On Hold / Not Active", groups: [
-      { label: "Banan Taleb", items: [
-        P("MOCA Ride", "CSS", "Delayed by Business",
-          ["The committee has been completed and presented this project", "The decision has been to continue with RSL for Dubai and AD and keep the MOCA cars for the other Emirates"],
-          ["Contract to be signed", "Vendor to do changes requested from business"], "TBD — pending signed contract",
-          "To have an application dedicated for the ministry to provide ride services for the employees"),
-      ] },
       { label: "", items: [
         P("Digital Library", "CSS", "On Hold",
           ["We had a meeting with the AI Office and the vendor to review the proposed solution", "During the discussion, Saqr suggested adding an MCP layer on top of the solution; this would simplify future integrations and enhance the scalability", "The Media Info team will confirm if adding the MCP layer is feasible"],
           ["Khawla will start filtering the content", "Kickoff meeting"], "TBD — not yet baselined"),
-        P("We the UAE", "PMO", "Delayed by Business",
-          ["We had a meeting last week with the business and vendor teams", "The business team requested changes to both the existing design and the new design"],
-          ["Santhosh is working on implementing all the design changes, business feedback, and suggestions to ensure the demo version aligns with expectations"], "TBD — awaiting business direction (target Aug/Sep)"),
         P("Project Dashboard in Executive Dashboard", "CSS", "On Hold",
           ["Waiting for the developer budget to be approved to onboard the developer"],
           ["Once budget approved, onboard the developer to kick off the project"], "TBD — not yet baselined"),

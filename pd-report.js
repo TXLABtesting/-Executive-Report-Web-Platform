@@ -145,7 +145,8 @@ function itemCardHTML(it, key, secId) {
     (it.updates.length ? `<div class="detail-block"><span class="detail-label">${esc(L().updatesT)}</span>${updates}</div>` : "") +
     (showNext ? `<div class="detail-block"${it.updates.length ? ' style="padding-top:0"' : ""}><span class="detail-label next">${esc(L().nextT)}</span>${next}</div>` : "") +
     outcome +
-    (!it.updates.length && !showNext && !it.outcome ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
+    // Live projects are already in production, so the "no updates" note is omitted for them.
+    (!it.updates.length && !showNext && !it.outcome && secId !== "live" ? `<span class="no-updates">${esc(L().noUpdates)}</span>` : "");
   return `<article class="item-card${open ? " open" : ""}" data-key="${esc(key)}">
     <button type="button" class="item-head" aria-expanded="${open}">
       <div class="item-title-row"><span class="item-name">${esc(tr(it.name))}</span><span class="chev-i" aria-hidden="true">▾</span></div>
@@ -413,10 +414,16 @@ function build() {
   const curWeek = weekId ? SELF + "?week=" + weekId : SELF;
 
   // Dynamic portfolio stats — computed from this portal's items, never hard-coded.
+  // "Total Projects" and its Projects/Demands breakdown count the active
+  // portfolio only: every status except On Hold and Not Active. Live is the
+  // count of items already in production. Kept consistent so Total = Projects
+  // & enhancements + Demands.
+  const EXCLUDED = ["On Hold", "Not active"];
+  const activeItems = ALL.filter((x) => !EXCLUDED.includes(x.status));
   const statDefs = [
-    { n: ALL.length, label: "Total Projects", sub: "All projects, releases & demands", cls: "hl" },
-    { n: ALL.filter((x) => !x.secId.includes("demand")).length, label: "Projects & enhancements", sub: "Active deliveries & releases", cls: "" },
-    { n: ALL.filter((x) => x.secId.includes("demand")).length, label: "Demands", sub: "Backlog & requests", cls: "" },
+    { n: activeItems.length, label: "Total Projects", sub: "Active — excludes On Hold & Not Active", cls: "hl" },
+    { n: activeItems.filter((x) => !x.secId.includes("demand")).length, label: "Projects & enhancements", sub: "Active deliveries & releases", cls: "" },
+    { n: activeItems.filter((x) => x.secId.includes("demand")).length, label: "Demands", sub: "Backlog & requests", cls: "" },
     { n: ALL.filter((x) => x.status === "Live").length, label: "Live", sub: "Currently in production", cls: "live" },
   ];
   const statsHTML = statDefs
@@ -433,19 +440,6 @@ function build() {
       <span class="entity-name">${esc(e.name)}</span>
       <div class="entity-track"><div class="entity-fill" style="width:${Math.max(4, Math.round((e.n / maxE) * 100))}%;animation-delay:${i * 0.05}s"></div></div>
       <span class="entity-n">${e.n}</span>
-    </div>`)
-    .join("");
-
-  // Dynamic status distribution — how many On Hold, Not Active, Live, etc.
-  const statusCounts = {};
-  ALL.forEach((it) => { statusCounts[it.status] = (statusCounts[it.status] || 0) + 1; });
-  const statusList = Object.entries(statusCounts).map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
-  const maxS = Math.max(1, ...statusList.map((s) => s.n));
-  const statusHTML = statusList
-    .map((s, i) => `<div class="entity-row">
-      <span class="entity-name"><span class="stat-dot" style="background:${esc(badge(s.name).dot)}"></span>${esc(trS(s.name))}</span>
-      <div class="entity-track"><div class="entity-fill" style="width:${Math.max(4, Math.round((s.n / maxS) * 100))}%;animation-delay:${i * 0.05}s"></div></div>
-      <span class="entity-n">${s.n}</span>
     </div>`)
     .join("");
 
@@ -502,10 +496,7 @@ function build() {
     <section id="overview" aria-label="Portfolio overview">
       <h2 class="section-title">${esc(l.overviewT)}</h2>
       <div class="stat-grid">${statsHTML}</div>
-      <div class="ov-panels">
-        <div class="entity-panel"><span class="label-caps">${esc(l.byStatus)}</span>${statusHTML}</div>
-        ${entList.length > 1 ? `<div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>` : ""}
-      </div>
+      ${entList.length > 1 ? `<div class="entity-panel"><span class="label-caps">${esc(l.byEntity)}</span>${entitiesHTML}</div>` : ""}
     </section>
 
     ${flaggedHTML}
