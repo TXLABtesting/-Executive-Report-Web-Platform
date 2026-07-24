@@ -54,6 +54,16 @@ const I18N = {
   },
 };
 
+// Portal cards hidden from the landing grid for now. Remove a key to show it
+// again (e.g. re-enable "wgs" and "tec" when those portals go live). A hidden
+// portal is also kept out of the weekly archive and global search so it is not
+// reachable while its card is off.
+const HIDDEN_PORTALS = ["wgs", "tec"];
+const wgsHidden = HIDDEN_PORTALS.includes("wgs");
+// A report link that belongs to a currently hidden portal (only WGS has an
+// internal report page; TEC is an external card with no archive/search entry).
+const isHiddenReport = (href) => wgsHidden && typeof href === "string" && href.startsWith(m.wgsReport.href);
+
 const state = {
   lang: localStorage.getItem("dtLang") || "en",
   q: "",
@@ -108,6 +118,7 @@ function computePortals() {
 
   const portals = [
     {
+      key: "wgs",
       title: tr(m.wgsReport.title),
       kicker: tr(m.wgsReport.programme),
       date: trDate(lw ? lw.date : m.wgsReport.date),
@@ -115,6 +126,7 @@ function computePortals() {
       href: lw ? uploadHref(lw) : m.wgsReport.href,
     },
     {
+      key: "ministry",
       title: l.ministryTitle,
       kicker: tr(m.site.dept),
       date: trDate(ld ? ld.date : m.demandReport.date),
@@ -122,6 +134,7 @@ function computePortals() {
       href: pdHref(m.MINISTRY_DEMAND_HREF),
     },
     {
+      key: "css",
       title: l.cssTitle,
       kicker: tr(m.site.dept),
       date: trDate(ld ? ld.date : m.demandReport.date),
@@ -131,13 +144,14 @@ function computePortals() {
     {
       // External portal — destination link intentionally removed; the new URL
       // will be provided later. The card stays visible with a disabled button.
+      key: "tec",
       title: l.tecTitle,
       kicker: tr(m.site.dept),
       date: trDate(m.site.lastUpdated),
       overallStatus: "Pending",
       href: "",
     },
-  ];
+  ].filter((p) => !HIDDEN_PORTALS.includes(p.key));
 
   const others = stored
     .filter((x) => x.type === "other")
@@ -154,6 +168,7 @@ function computeResults() {
   const query = state.q.trim().toLowerCase();
   if (query.length < 2) return null;
   return searchIndex
+    .filter((e) => !isHiddenReport(e.href))
     .filter((e) => (e.title + " " + e.text + " " + e.type + " " + e.meta).toLowerCase().includes(query))
     .slice(0, 30)
     .map((e) => ({ ...e, type: trType(e.type), title: tr(e.title) }));
@@ -175,6 +190,9 @@ function computeWeeks() {
   }));
   return [...uploaded, ...m.archive]
     .filter((w) => !aql || (w.week + " " + w.date).toLowerCase().includes(aql))
+    // Drop report links for hidden portals; drop a week left with no reports.
+    .map((w) => ({ ...w, reports: w.reports.filter((r) => !isHiddenReport(r.href)) }))
+    .filter((w) => w.reports.length > 0)
     .map((w) => ({
       ...w,
       week: trDate(w.week),
