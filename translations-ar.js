@@ -564,4 +564,7 @@ export const AR = {
   "TBD — to be reactivated with HR": "TBD — سيُعاد تفعيله مع الموارد البشرية",
   "TBD — awaiting business direction (target Aug/Sep)": "TBD — بانتظار توجيه فريق الأعمال (المستهدف أغسطس/سبتمبر)",
   "TBD — pending signed contract": "TBD — بانتظار توقيع العقد",
+  // ==== 24 July update — Group Email projects ====
+  "Faster, standardized, and trackable group email requests with less manual work for IT teams": "طلبات بريد جماعي أسرع وموحّدة وقابلة للتتبّع مع عمل يدوي أقل لفرق تقنية المعلومات",
+  "TBD — Currently finalizing the SP plan": "TBD — يجري حاليًا استكمال خطة SP",
 };

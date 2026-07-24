@@ -215,7 +215,6 @@ function renderReports() {
             <span class="card-kicker">${esc(r.kicker)}</span>
             <h2>${esc(r.title)}</h2>
           </div>
-          <span class="status-badge" style="background:${esc(r.badge.bg)};color:${esc(r.badge.fg)}"><span class="status-dot" style="background:${esc(r.badge.dot)}"></span>${esc(r.status)}</span>
         </div>
         <div class="card-meta"><span><strong>${esc(L().lastUpdated)}:</strong> ${esc(r.date)}</span></div>
         <div class="card-actions">
