@@ -99,6 +99,15 @@ const ALL = m.flattenDemand(SECTIONS);
 const L = () => I18N[state.lang];
 const t = () => translators(state.lang);
 
+// Go-live label: "Live" → localized status; a value carrying explanatory text
+// (e.g. "TBD — pending …") is looked up in the AR map; a plain date runs
+// through the Arabic date converter.
+function goLiveText(goLive, tr, trS, trD) {
+  if (goLive === "Live") return trS("Live");
+  const mapped = tr(goLive);
+  return mapped !== goLive ? mapped : trD(goLive);
+}
+
 const matchItem = (it) => {
   const query = state.q.trim().toLowerCase();
   return (
@@ -119,7 +128,7 @@ function itemCardHTML(it, key) {
   const { tr, trS, trD } = t();
   const b = badge(it.status);
   const open = state.open[key] !== false;
-  const goLiveLabel = it.goLive === "Live" ? trS("Live") : trD(it.goLive);
+  const goLiveLabel = goLiveText(it.goLive, tr, trS, trD);
   const updates = it.updates.map((u) => `<div class="detail-line"><span class="b">·</span><span>${esc(tr(u))}</span></div>`).join("");
   const next = it.next.map((u) => `<div class="detail-line"><span class="b next">→</span><span>${esc(tr(u))}</span></div>`).join("");
   const outcome = it.outcome
@@ -236,7 +245,7 @@ async function renderCardImage(reg) {
   const W = 760, PAD = 44, CW = W - PAD * 2;
   const x0 = isAr ? W - PAD : PAD;
   const dispW = 480, dfont = '"Space Grotesk", system-ui, sans-serif', bfont = '"IBM Plex Sans", system-ui, sans-serif';
-  const goLiveLabel = it.goLive === "Live" ? trS("Live") : trD(it.goLive);
+  const goLiveLabel = goLiveText(it.goLive, tr, trS, trD);
 
   const meas = document.createElement("canvas").getContext("2d");
   meas.direction = isAr ? "rtl" : "ltr";
