@@ -867,7 +867,7 @@ export const darkStatusColors = {
 
 // Visual themes — CSS custom properties applied on each page's root element.
 export const themes = {
-  "Warm Paper": { "--bg": "#FAF7F2", "--sf": "#FFFFFF", "--sf2": "#F3EFE7", "--bd": "#E6E0D4", "--ink": "#22312E", "--mut": "#75807B", "--acc": "#2F6F62", "--accInk": "#FFFFFF", "--glow": "rgba(47,111,98,0.08)" },
+  "Royal Navy": { "--bg": "#F5F8FC", "--sf": "#FFFFFF", "--sf2": "#EAF1F9", "--bd": "#D8E2EF", "--ink": "#16233B", "--mut": "#66758A", "--acc": "#1E4E8C", "--accInk": "#FFFFFF", "--glow": "rgba(30,78,140,0.10)" },
   "Mist Blue":  { "--bg": "#F4F6F8", "--sf": "#FFFFFF", "--sf2": "#ECF0F4", "--bd": "#DCE3EA", "--ink": "#20304A", "--mut": "#7C8CA0", "--acc": "#3B6EA8", "--accInk": "#FFFFFF", "--glow": "rgba(59,110,168,0.08)" },
   "Sage":       { "--bg": "#EFF3F1", "--sf": "#FFFFFF", "--sf2": "#E6ECE8", "--bd": "#D8E0DA", "--ink": "#2A3B33", "--mut": "#7B897F", "--acc": "#4A7A5C", "--accInk": "#FFFFFF", "--glow": "rgba(74,122,92,0.10)" },
 };

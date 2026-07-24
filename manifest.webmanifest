@@ -8,8 +8,8 @@
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#FAF7F2",
-  "theme_color": "#2F6F62",
+  "background_color": "#F5F8FC",
+  "theme_color": "#1E4E8C",
   "categories": ["business", "government", "productivity"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

@@ -6,7 +6,7 @@ export const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 export function applyTheme(name = "Warm Paper") {
-  for (const [prop, value] of Object.entries(m.themes[name] || m.themes["Warm Paper"])) {
+  for (const [prop, value] of Object.entries(m.themes[name] || m.themes["Royal Navy"])) {
     document.documentElement.style.setProperty(prop, value);
   }
 }

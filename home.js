@@ -74,7 +74,7 @@ const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Apply the default theme's CSS custom properties on the root element.
-for (const [prop, value] of Object.entries(m.themes["Warm Paper"])) {
+for (const [prop, value] of Object.entries(m.themes["Royal Navy"])) {
   document.documentElement.style.setProperty(prop, value);
 }
 

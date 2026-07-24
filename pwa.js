@@ -28,16 +28,16 @@
     s.id = "pwaStyle";
     s.textContent =
       ".pwa-install{position:fixed;bottom:18px;inset-inline-end:18px;z-index:9999;display:flex;align-items:center;gap:10px;" +
-      "background:#2F6F62;color:#fff;border:0;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:700;" +
+      "background:#1E4E8C;color:#fff;border:0;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:700;" +
       "font-family:'IBM Plex Sans','IBM Plex Sans Arabic',system-ui,sans-serif;cursor:pointer;" +
       "box-shadow:0 8px 24px rgba(0,0,0,0.22);max-width:calc(100vw - 36px)}" +
       ".pwa-install:hover{filter:brightness(1.08)}" +
       ".pwa-install .x{opacity:.85;font-size:16px;line-height:1}" +
       ".pwa-tip{position:fixed;bottom:18px;inset-inline:18px;z-index:9999;margin:0 auto;max-width:420px;" +
-      "background:#22312E;color:#FAF7F2;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5;" +
+      "background:#16233B;color:#F5F8FC;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5;" +
       "font-family:'IBM Plex Sans','IBM Plex Sans Arabic',system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,0.28);" +
       "display:flex;gap:12px;align-items:flex-start}" +
-      ".pwa-tip button{margin-inline-start:auto;background:transparent;border:0;color:#FAF7F2;font-size:18px;cursor:pointer;line-height:1}";
+      ".pwa-tip button{margin-inline-start:auto;background:transparent;border:0;color:#F5F8FC;font-size:18px;cursor:pointer;line-height:1}";
     document.head.appendChild(s);
   }
 

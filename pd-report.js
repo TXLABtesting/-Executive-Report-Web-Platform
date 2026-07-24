@@ -237,8 +237,8 @@ async function renderCardImage(reg) {
 
   const cs = getComputedStyle(document.documentElement);
   const cv = (n, fb) => (cs.getPropertyValue(n).trim() || fb);
-  const INK = cv("--ink", "#22312E"), MUT = cv("--mut", "#75807B"), ACC = cv("--acc", "#2F6F62"),
-        BD = cv("--bd", "#E6E0D4"), SF = cv("--sf", "#FFFFFF"), SF2 = cv("--sf2", "#F3EFE7");
+  const INK = cv("--ink", "#16233B"), MUT = cv("--mut", "#66758A"), ACC = cv("--acc", "#1E4E8C"),
+        BD = cv("--bd", "#D8E2EF"), SF = cv("--sf", "#FFFFFF"), SF2 = cv("--sf2", "#EAF1F9");
   const NEXTC = "#2B6CB0", OUTC = "#7A5AA6";
   const b = badge(it.status);
 

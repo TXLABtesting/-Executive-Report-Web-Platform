@@ -1,7 +1,7 @@
 /* Shared styles for the report portal pages (WGS + both Project & Demand portals). */
 :root{
-  --bg:#FAF7F2;--sf:#FFFFFF;--sf2:#F3EFE7;--bd:#E6E0D4;--ink:#22312E;--mut:#75807B;
-  --acc:#2F6F62;--accInk:#FFFFFF;--glow:rgba(47,111,98,0.08);
+  --bg:#F5F8FC;--sf:#FFFFFF;--sf2:#EAF1F9;--bd:#D8E2EF;--ink:#16233B;--mut:#66758A;
+  --acc:#1E4E8C;--accInk:#FFFFFF;--glow:rgba(30,78,140,0.10);
   --font-body:'IBM Plex Sans','IBM Plex Sans Arabic',system-ui,sans-serif;
   --font-display:'Space Grotesk','IBM Plex Sans Arabic',sans-serif;
   --pagew:1080px;
