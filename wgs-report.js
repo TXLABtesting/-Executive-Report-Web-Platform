@@ -172,7 +172,6 @@ function build() {
     { id: "glance", label: l.navGlance }, { id: "meetings", label: l.navMeetings },
     { id: "workstream", label: l.navWorkstream }, { id: "salesforce", label: l.navSalesforce },
     { id: "decisions", label: l.navDecisions }, { id: "actions", label: l.navActions },
-    { id: "attention", label: l.navAttention, accent: true },
   ];
 
   const gs = R.glance.stats || [];
@@ -204,7 +203,6 @@ function build() {
           <h1>${esc(tr(R.subtitle))}</h1>
           <span class="hero-sub">${esc(trD(R.weekOf))} · <strong>${esc(l.lastUpdated)}: ${esc(trD(R.date))}</strong></span>
         </div>
-        <span class="status-pill"><span class="dot"></span>${esc(trS(R.overallStatus))}</span>
       </div>
       <div class="hero-actions no-print">
         <a class="btn-primary" href="${esc(R.pdf)}" download>${esc(l.downloadPdf)}</a>
@@ -316,23 +314,6 @@ function build() {
       <div id="actionList"></div>
     </section>
 
-    <section id="attention" class="attention-card" aria-label="Requires management attention">
-      <div class="attention-head">${esc(l.attentionTitle)}</div>
-      <div class="attention-grid">
-        <div class="attention-col">
-          <span class="att-label" style="color:#9C6A1E">${esc(l.risksT + " — " + risks.length)}</span>
-          ${risks.map((r) => `<a class="att-link" href="#decisions"><span class="b" style="color:#9C6A1E">▲</span><span>${esc(tr(r.risk))}</span></a>`).join("")}
-        </div>
-        <div class="attention-col">
-          <span class="att-label" style="color:#6B46C1">${esc(l.decisionsIP)}</span>
-          ${decisions.map((d) => `<a class="att-link" href="#decisions"><span class="b" style="color:#6B46C1">◆</span><span>${esc(tr(d.item))}</span></a>`).join("")}
-        </div>
-        <div class="attention-col">
-          <span class="att-label" style="color:#2B6CB0">${esc(l.pendingA)} — ${pending.length}</span>
-          ${pending.map((a) => `<a class="att-link" href="#actions"><span class="b" style="color:#2B6CB0">→</span><span>${esc(tr(a.action))}</span></a>`).join("")}
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">WGS Digital Transformation 2027 · Internal Status Update · ${esc(trD(R.date))}</footer>`;
@@ -373,7 +354,7 @@ function build() {
 
   document.getElementById("meetingList").innerHTML = meetingsHTML();
   document.getElementById("actionList").innerHTML = actionsHTML();
-  initScrollSpy(["glance", "meetings", "workstream", "salesforce", "decisions", "actions", "attention"]);
+  initScrollSpy(["glance", "meetings", "workstream", "salesforce", "decisions", "actions"]);
 }
 
 build();
