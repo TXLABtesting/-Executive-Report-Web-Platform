@@ -1,5 +1,5 @@
 // Home page — weekly status report hub.
-// Renders the report cards, global search and weekly archive from reports-data.js,
+// Renders the report cards and weekly archive from reports-data.js,
 // with EN/AR localization (translations-ar.js) and uploaded weeks from localStorage.
 
 import * as m from "./reports-data.js";
@@ -66,11 +66,8 @@ const isHiddenReport = (href) => wgsHidden && typeof href === "string" && href.s
 
 const state = {
   lang: localStorage.getItem("dtLang") || "en",
-  q: "",
   aq: "",
 };
-
-const searchIndex = m.buildSearchIndex();
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
@@ -164,16 +161,6 @@ function computePortals() {
   }));
 }
 
-function computeResults() {
-  const query = state.q.trim().toLowerCase();
-  if (query.length < 2) return null;
-  return searchIndex
-    .filter((e) => !isHiddenReport(e.href))
-    .filter((e) => (e.title + " " + e.text + " " + e.type + " " + e.meta).toLowerCase().includes(query))
-    .slice(0, 30)
-    .map((e) => ({ ...e, type: trType(e.type), title: tr(e.title) }));
-}
-
 function computeWeeks() {
   const aql = state.aq.trim().toLowerCase();
   const uploaded = storedWeeks().map((u) => ({
@@ -213,36 +200,10 @@ function renderStatic() {
   $("h1a").textContent = l.h1a;
   $("h1b").textContent = l.h1b;
   $("taglineText").textContent = l.tagline;
-  $("searchInput").placeholder = l.searchPh;
   $("archiveTitle").textContent = l.archive;
   $("archiveInput").placeholder = l.archivePh;
   $("noWeeksNote").textContent = l.noWeeks;
   $("footerText").textContent = l.footer;
-}
-
-function renderSearch() {
-  const results = computeResults();
-  const box = $("searchResults");
-  const hasQ = results !== null;
-  $("clearBtn").hidden = !hasQ;
-  box.hidden = !hasQ;
-  if (!hasQ) {
-    box.innerHTML = "";
-    return;
-  }
-  const rows = results
-    .map(
-      (r) => `<a class="result-card" href="${esc(r.href)}">
-        <span class="result-head">
-          <span class="result-type">${esc(r.type)}</span>
-          <span class="result-title">${esc(r.title)}</span>
-        </span>
-        <span class="result-meta">${esc(r.meta)}</span>
-      </a>`
-    )
-    .join("");
-  const empty = results.length === 0 ? `<span class="empty-note">${esc(L().noResults)}</span>` : "";
-  box.innerHTML = `<span class="result-count">${results.length} ${esc(L().results)}</span>${rows}${empty}`;
 }
 
 function renderReports() {
@@ -294,7 +255,6 @@ function renderArchive() {
 
 function render() {
   renderStatic();
-  renderSearch();
   renderReports();
   renderArchive();
 }
@@ -303,18 +263,6 @@ $("langBtn").addEventListener("click", () => {
   state.lang = isAr() ? "en" : "ar";
   localStorage.setItem("dtLang", state.lang);
   render();
-});
-
-$("searchInput").addEventListener("input", (e) => {
-  state.q = e.target.value;
-  renderSearch();
-});
-
-$("clearBtn").addEventListener("click", () => {
-  state.q = "";
-  $("searchInput").value = "";
-  renderSearch();
-  $("searchInput").focus();
 });
 
 $("archiveInput").addEventListener("input", (e) => {
