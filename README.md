@@ -1,66 +1,77 @@
 # Executive Report Web Platform
 
-Static web platform for the Ministry of Cabinet Affairs — Digital Transformation Department weekly executive reports.
+Static, zero-build web platform for the Ministry of Cabinet Affairs —
+Digital Transformation Department weekly executive reports.
+Bilingual (English / Arabic, full RTL) and installable as a Progressive Web App.
+
+> **IT handover:** see **[HANDOVER.md](HANDOVER.md)** for the full development,
+> data-update and deployment guide. Arabic extraction note: **[IT-EXTRACTION-BRIEF-AR.md](IT-EXTRACTION-BRIEF-AR.md)**.
 
 ## Report portals
 
-The landing page (`index.html`) presents four access portals as clickable cards, plus global search and the weekly archive:
+The landing page (`index.html`) shows the report portals as cards:
 
-1. **WGS Weekly Status Report** — `wgs-weekly-status.html`: meetings, workstream focus, Salesforce deep dive, decisions & risks, actions.
-2. **Ministry Project & Demand** — `ministry-project-demand.html`: items whose Entity / Sector is one of the ministry entities (PMO, MOCA, WGS, GSOC, FCSC, Performance & Govt Excellence, Strategy & Innovation, Govt Service Sector, MBRCGI / Strategy & Innovation, Govt Development & Future Office, GEEO, Office of Secretary-General).
-3. **CSS Project & Demand** — `css-project-demand.html`: items whose Entity / Sector is exactly `CSS`.
-4. **Total Experience Center Status Report** — external card that opens `https://chief-report.onrender.com/#sec-mocasmart` directly (same tab, anchor preserved); it has no internal page.
+1. **WGS Weekly Status Report** — `wgs-weekly-status.html`: meetings, workstream
+   timeline, AI & Security deep dive, decisions & risks, actions.
+2. **Ministry Project & Demand** — `ministry-project-demand.html`: Project & Demand
+   items whose Entity / Sector is **not** `CSS`.
+3. **CSS Project & Demand** — `css-project-demand.html`: items whose Entity / Sector
+   is exactly `CSS`.
+4. **Total Experience Center** — hidden for now (awaiting its URL). Portal visibility
+   is controlled by `HIDDEN_PORTALS` in `home.js`.
 
-Supporting pages: `admin-upload.html` (admin upload page, linked from the header — publishes new weekly report versions to `localStorage`, with automatic PDF-to-content extraction when the Claude runtime is available) and `report-viewer.html` (details page for uploaded reports without interactive content).
+Supporting pages: `admin-upload.html` (publish a new weekly report from a PDF) and
+`report-viewer.html` (viewer for uploads without extracted content).
 
-## Report-mapping rules (Project & Demand split)
+## Routing rule (Project & Demand split)
 
-`reports-data.js` remains the **single structured source** for all Project & Demand data. The two P&D portals are derived views produced by `splitDemand(report, variant)`:
+`reports-data.js` is the **single structured source** for all Project & Demand data.
+The two P&D portals are derived views produced by `splitDemand(report, variant)`:
 
-- An item belongs to **CSS Project & Demand** iff `entity === "CSS"`.
-- An item belongs to **Ministry Project & Demand** iff its entity is in `MINISTRY_ENTITIES`.
-- Any other entity value (missing, inconsistent, or unrecognized — e.g. `"—"`) is **flagged for review** and assigned to neither portal; flagged items are listed in a review panel on the ministry portal.
-- Every item therefore appears in exactly one portal (or the flagged list) — never duplicated, never lost.
-- **All totals, statistics, status distributions and entity counts are computed from the data at render time. Nothing is hard-coded.**
-
-Each P&D portal has its own search, filters (section, entity, status, owner — combined under a single "Filters" button), summary stat cards, entity distribution chart, "Requires Management Attention" digest and weekly archive/week selector.
+- `entity === "CSS"` → **CSS Project & Demand** portal.
+- Every other entity/sector → **Ministry Project & Demand** portal.
+- Nothing is dropped or auto-flagged; each item appears in exactly one portal.
+- **All totals, statistics and counts are computed from the data at render time —
+  nothing is hard-coded.** The "Total Projects" card counts the active portfolio
+  (every status except `On Hold` and `Not active`).
 
 ## Structure
 
-- `index.html` + `home.js` — landing page: four portal cards, global search across all portals, weekly archive.
-- `ministry-project-demand.html` / `css-project-demand.html` + `pd-report.js` — the two Project & Demand portals (one shared implementation, variant chosen by `<body data-variant>`).
+- `index.html` + `home.js` — landing page (portal cards).
+- `ministry-project-demand.html` / `css-project-demand.html` + `pd-report.js` — the
+  two Project & Demand portals (one shared implementation; variant via `<body data-variant>`).
 - `wgs-weekly-status.html` + `wgs-report.js` — the WGS weekly report portal.
-- `admin-upload.html` + `admin.js` — admin upload page: report-type picker, PDF upload, publish/reprocess/delete of uploaded weeks.
-- `report-viewer.html` + `viewer.js` — viewer for uploaded reports (`?id=<upload id>`).
-- `common.js` — shared helpers (escaping, theme, language state, translators, scroll-spy).
-- `report.css` — shared styles for the report portals.
-- `reports-data.js` — unified content model, report-mapping rules, split/flatten helpers, status colors, themes, search index.
-- `translations-ar.js` — reviewed Arabic localization keyed by the exact English source strings.
-- `uploads/` — original PDF report files referenced by the download links (add the PDFs here).
+- `admin-upload.html` + `admin.js` — admin publishing (PDF → content).
+- `report-viewer.html` + `viewer.js` — viewer for uploaded reports.
+- `common.js` — shared helpers (escaping, theme, language, translators, scroll-spy).
+- `report.css` — shared styles for the report pages.
+- `reports-data.js` — unified content model, routing rules, split/flatten helpers,
+  status colours and theme tokens.
+- `translations-ar.js` — Arabic dictionary keyed by the exact English source strings.
+- `manifest.webmanifest` + `sw.js` + `pwa.js` + `icons/` — PWA (installable, offline).
+- `uploads/` — original PDF report files referenced by the download links.
+
+## Updating a weekly report
+
+Edit `reports-data.js` (the single source of truth) and add any new Arabic strings to
+`translations-ar.js`. Items use the `P(name, entity, status, updates, next, goLive, outcome)`
+helper and are grouped by Project Manager. See **HANDOVER.md §6–7** for the full guide.
 
 ## Localization & responsiveness
 
-Every page supports English and Arabic via the header language switcher; the choice persists in `localStorage` (`dtLang`) and flips the layout between LTR and RTL. The site is mobile-first: portal cards stack on small screens, report filters collapse under one button, and all item lists render as cards — no horizontal scrolling.
+Every page supports English and Arabic via the header language switcher; the choice
+persists in `localStorage` (`dtLang`) and flips the layout between LTR and RTL. The
+site is mobile-first with a sticky report header and horizontally-scrolling section nav.
 
-Weeks uploaded through the admin page are stored in `localStorage` under `dtWeeks`; they feed the portal cards, the week selectors on the report pages (`?week=<id>`), and the archives automatically. A demand upload feeds both P&D portals through the same split rules.
+## Deploy
 
-## Automatic PDF extraction (admin uploads)
-
-The admin page reads each uploaded PDF in the browser (pdf-parse) and converts it into structured site content. Extraction resolves in this order:
-
-1. **Claude Design runtime** (`window.claude.complete`) when the site runs inside a Claude Design preview.
-2. **`/api/extract`** — a Vercel serverless function (`api/extract.js`) that calls the Claude API. Set the **`ANTHROPIC_API_KEY`** environment variable in the Vercel project settings to enable it (the key never reaches the browser). Optional: `EXTRACT_MODEL` overrides the model (default `claude-opus-4-8`).
-3. **Direct from the browser** — on static hosting (e.g. the GitHub Pages demo) there is no server, so the admin can save a Claude API key in the "Extraction settings" section of the admin page. The key is stored only in that browser (`localStorage`) and sent only to the Claude API (official SDK with `dangerouslyAllowBrowser`); use a restricted key.
-
-If none is available, the report still publishes to the archive with its PDF (state: "PDF only — needs processing") and can be processed later with the **Process content** button once extraction is configured. There is no manual data entry: one attachment per update is enough, and a single Project & Demand upload feeds both P&D portals via the entity split rules.
-
-## Live demo (GitHub Pages)
-
-`.github/workflows/pages.yml` deploys the site to GitHub Pages on every push to this branch. One-time setup: repository **Settings → Pages → Source: GitHub Actions**. The demo URL is `https://txlabtesting.github.io/-Executive-Report-Web-Platform/`.
+`.github/workflows/pages.yml` deploys to GitHub Pages on every push to this branch.
+Demo: `https://txlabtesting.github.io/-Executive-Report-Web-Platform/`. Any static host
+works too; installability/offline (PWA) require HTTPS. See **HANDOVER.md §5**.
 
 ## Running locally
 
-The pages use ES modules, so serve over HTTP rather than opening the file directly:
+The pages use ES modules and a service worker, so serve over HTTP (not `file://`):
 
 ```bash
 python3 -m http.server 8000

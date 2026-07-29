@@ -1,154 +1,205 @@
 # Executive Report Web Platform — IT Handover
 
 Handover package for the development & operations team.
-Repository: `https://github.com/TXLABtesting/-Executive-Report-Web-Platform` (branch `claude/implement-home-dc-html-mxa6tz`, currently the default branch).
+**Ministry of Cabinet Affairs — Digital Transformation Department.**
+
+Repository: `https://github.com/TXLABtesting/-Executive-Report-Web-Platform`
+Working branch: `claude/implement-home-dc-html-mxa6tz`
+Live demo (GitHub Pages): `https://txlabtesting.github.io/-Executive-Report-Web-Platform/`
 
 ---
 
 ## 1. What this is
 
-A bilingual (EN / AR with full RTL) executive reporting site for the Ministry of Cabinet Affairs — Digital Transformation Department. A landing page exposes four report portals:
+A bilingual (English / Arabic, full RTL) executive reporting website. The landing
+page (`index.html`) shows report portals as cards:
 
 | Portal | Route (file) | Content |
 |---|---|---|
-| WGS Weekly Status Report | `wgs-weekly-status.html` | Meetings, workstream timeline, Salesforce deep-dive, decisions & risks, action items |
-| Ministry Project & Demand | `ministry-project-demand.html` | P&D items whose Entity/Sector is one of the 12 ministry entities |
-| CSS Project & Demand | `css-project-demand.html` | P&D items whose Entity/Sector is exactly `CSS` |
-| Total Experience Center | *(landing card only)* | External report — **destination URL intentionally removed, pending from the business; button is disabled until provided** |
+| WGS Weekly Status Report | `wgs-weekly-status.html` | Meetings, workstream timeline, AI & Security deep-dive, decisions & risks, actions |
+| Ministry Project & Demand | `ministry-project-demand.html` | Project & Demand items whose Entity/Sector is **not** `CSS` |
+| CSS Project & Demand | `css-project-demand.html` | Project & Demand items whose Entity/Sector is exactly `CSS` |
+| Total Experience Center | *(hidden)* | External report — currently disabled, awaiting its URL from the business |
 
-Plus: `admin-upload.html` (publish new weekly reports from PDF) and `report-viewer.html` (details page for uploads without extracted content).
+Supporting pages: `admin-upload.html` (publish a new weekly report from a PDF) and
+`report-viewer.html` (details page for uploads without extracted content).
 
-**Tech stack: zero-build vanilla web.** Plain HTML + CSS + ES modules. No framework, no bundler, no transpilation. The only Node dependency (`@anthropic-ai/sdk`) is used exclusively by the optional serverless function `api/extract.js`.
+Portal visibility is controlled by `HIDDEN_PORTALS` in `home.js` (currently
+`["tec"]` — WGS, Ministry and CSS are visible; TEC is hidden until its URL is provided).
 
-## 2. Repository layout
+## 2. Tech stack — zero build
+
+Plain **HTML + CSS + ES modules**. No framework, no bundler, no transpilation, no
+build step. Serve the files with any static web server and they run. The only Node
+dependency (`@anthropic-ai/sdk`) is used *exclusively* by the optional serverless
+function `api/extract.js` — the website itself has no runtime dependencies.
+
+Progressive Web App: the site is installable to a phone/desktop home screen and
+works offline (service worker + web manifest).
+
+## 3. Repository layout
 
 ```
-index.html + home.js              Landing: 4 portal cards, global search, weekly archive
-ministry-project-demand.html      P&D portal shells (variant via <body data-variant>)
-css-project-demand.html
-pd-report.js                      Shared P&D portal logic (filters, stats, sections, attention)
-wgs-weekly-status.html + wgs-report.js
-admin-upload.html + admin.js      Admin publishing + PDF extraction pipeline
-report-viewer.html + viewer.js
-common.js                         Shared helpers (escaping, theme, lang state, translators, scroll-spy)
-report.css                        Shared styles for report/admin/viewer pages
-reports-data.js                   ★ SINGLE SOURCE OF TRUTH: all report content + mapping rules
-translations-ar.js                Arabic localization (keyed by exact English source strings)
-api/extract.js                    Vercel serverless function → Claude API (PDF text → JSON)
-vercel.json                       maxDuration for the function
-package.json                      @anthropic-ai/sdk (for api/ only)
-.github/workflows/pages.yml       GitHub Pages deployment workflow
-uploads/                          (referenced, not committed) original PDF files — see §9
+index.html + home.js              Landing page: report portal cards
+ministry-project-demand.html      Project & Demand portal shells
+css-project-demand.html           (variant chosen via <body data-variant="ministry|css">)
+pd-report.js                      Shared P&D portal logic (stats, filters, sections, share-as-image)
+wgs-weekly-status.html + wgs-report.js   WGS Weekly Status portal
+admin-upload.html + admin.js      Admin: publish a new weekly report (PDF -> content)
+report-viewer.html + viewer.js    Viewer for uploaded PDFs without extracted content
+common.js                         Shared helpers (esc, theme, language, translators, badges, scroll-spy)
+reports-data.js                   * SINGLE SOURCE OF TRUTH - all report data + routing + theme tokens
+translations-ar.js                Arabic dictionary (keyed by the exact English source strings)
+report.css                        Shared styles for the report/admin/viewer pages
+manifest.webmanifest + sw.js + pwa.js + icons/   PWA (installable, offline)
+api/extract.js                    Optional serverless PDF->JSON extractor (Vercel-style)
+uploads/                          Source PDFs referenced by the "Download original PDF" buttons
+.github/workflows/pages.yml       GitHub Pages deploy workflow
 ```
 
-## 3. Core business rules — Project & Demand split
+## 4. Run locally
 
-`reports-data.js` holds one combined P&D dataset. The two portals are **derived views**, produced at render time by `splitDemand(report, variant)`:
+Any static file server works — there is no build. From the repo root:
 
-- `entity === "CSS"` → CSS portal.
-- entity ∈ `MINISTRY_ENTITIES` (PMO, MOCA, WGS, GSOC, FCSC, Performance & Govt Excellence, Strategy & Innovation, Govt Service Sector, MBRCGI / Strategy & Innovation, Govt Development & Future Office, GEEO, Office of Secretary-General) → Ministry portal.
-- Anything else (missing / unrecognized, e.g. `"—"`) → **flagged for review**, assigned to neither, surfaced in a red review panel on the Ministry portal.
-- Every item lands in exactly one place; **no totals are hard-coded** — all stats, status distributions and entity counts are computed from the data at render time. Current baseline: 68 CSS + 46 ministry + 1 flagged = 115 items.
-
-Keep this invariant when extending: **never** store per-portal copies of an item; change the source data or the mapping rules only.
-
-## 4. Client-side storage schema (localStorage)
-
-| Key | Shape | Meaning |
-|---|---|---|
-| `dtLang` | `"en" \| "ar"` | UI language, all pages |
-| `dtAnthropicKey` | string | Admin's Claude API key for direct-from-browser extraction (§6, path 3) |
-| `dtWeeks` | `UploadedWeek[]` | Reports published via the admin page |
-
-```ts
-type UploadedWeek = {
-  id: number;                 // Date.now() at publish
-  type: "wgs" | "demand" | "other";
-  title: string;
-  week: string;               // "Week of 20 July 2026" (derived from reportDate)
-  date: string;               // "24 July 2026"
-  status: string;             // one of the statusColors keys
-  summary: string;
-  pdfName: string;
-  pdfData: string;            // data: URI of the original PDF (≤3MB) or ""
-  data: object | null;        // extracted content (report-shaped) — null = "PDF only"
-};
-```
-
-Consumption rules already implemented:
-- A `demand` upload with `data` feeds **both** P&D portals via `?week=<id>` (split applied to the uploaded data too).
-- Uploads **without** `data` appear in the archive/admin only and do **not** replace the portal cards.
-- `report-viewer.html?id=<id>` shows uploads without extracted content.
-
-> ⚠️ **Production blocker #1:** localStorage is per-browser. An upload by the admin is visible only in that browser. For production, replace the three `localStorage` touchpoints (`admin.js` persist/read, `common.js#storedWeeks`, viewer) with a small backend (e.g. a `weeks` table/collection + 3 endpoints: list, create, delete) keeping the exact `UploadedWeek` JSON shape — every consumer will then work unchanged. Store PDFs in object storage instead of data-URIs and drop the 3MB limit.
-
-## 5. Localization
-
-- UI strings: per-page `I18N` objects (`en` / `ar`) inside each page's JS.
-- Data strings: `translations-ar.js` — `AR` map keyed by the **exact English source string**, plus `STATUS_AR`, `TYPE_AR`, and `arDate()` for dates. To add content, add the English string to `reports-data.js` and its translation to `translations-ar.js`; untranslated strings fall back to English.
-- `dir`/`lang` are set on `<html>` at render; layout is RTL-safe via logical CSS properties.
-
-## 6. AI extraction pipeline (PDF → site content)
-
-The admin page reads the uploaded PDF to text **in the browser** (pdf-parse via CDN), then resolves extraction through three paths in order (`admin.js#extract`):
-
-1. **Claude Design runtime** — `window.claude.complete`, only inside claude.ai/design previews.
-2. **`POST api/extract`** (Vercel serverless) — body `{ "type": "wgs"|"demand", "text": string }` → `{ "data": <report JSON> }`. Errors: 400 bad payload, 405, 422 (refusal / too large / invalid JSON), 429, 502, 503 (key not configured). Model: `claude-opus-4-8` (override with `EXTRACT_MODEL` env var). Streaming is used internally to avoid HTTP timeouts; `vercel.json` sets `maxDuration: 300`.
-3. **Direct from browser** — official Anthropic SDK (CDN ESM, `dangerouslyAllowBrowser`), using the key saved in the admin page's "Extraction settings" (localStorage). Intended for static hosting (GitHub Pages) where no server exists.
-
-If all paths fail, the report still publishes as "PDF only — needs processing"; the **Process content** button re-runs extraction later. The two extraction prompt-schemas (WGS / demand) live in both `api/extract.js` (server) and `admin.js` (paths 1 & 3) — keep them in sync.
-
-## 7. Deployment
-
-### Option A — Vercel (recommended; full functionality)
-1. Import the repo into Vercel (no build settings needed — static + `api/` auto-detected; `npm install` runs from `package.json`).
-2. Project Settings → Environment Variables: `ANTHROPIC_API_KEY` = key from console.anthropic.com. Optional: `EXTRACT_MODEL`.
-3. Redeploy. Server-side extraction is then active and no key is ever exposed to browsers.
-
-### Option B — GitHub Pages (static demo; already wired)
-1. Repo Settings → Pages → Source: **GitHub Actions** (one-time, needs repo admin — this is currently the only pending step).
-2. Every push to the default branch triggers `.github/workflows/pages.yml` → `https://txlabtesting.github.io/-Executive-Report-Web-Platform/`.
-3. No server: extraction works only via path 3 (admin saves a key in their browser).
-
-### Option C — any static host / internal web server
-Serve the repo root over HTTP(S) (ES modules don't work from `file://`). Same functional profile as Pages.
-
-### Local development
 ```bash
-python3 -m http.server 8000        # or any static server, repo root
-# open http://localhost:8000/
-# for the serverless function locally: npm i -g vercel && vercel dev
+python3 -m http.server 8000
+# then open http://localhost:8000/
 ```
 
-## 8. Production-hardening checklist (for IT)
+or `npx serve`, VS Code Live Server, Nginx, Apache — anything that serves static
+files. **Do not** open via `file://` (ES modules and the service worker require
+`http(s)://`).
 
-- [ ] **Authentication for `admin-upload.html`** — currently unauthenticated by design (prototype). Put it behind SSO/reverse-proxy auth before production.
-- [ ] **Shared persistence** — replace localStorage as described in §4 (blocker for multi-user).
-- [ ] **Repo visibility** — the repository is currently public and the footer marks content "Confidential". Make it private / move to the org, and host on internal infrastructure if required.
-- [ ] **Rate-limit / auth-gate `api/extract`** — it is currently callable by anyone who can reach the deployment (spends API tokens).
-- [ ] Serve fonts locally if internet egress is restricted (currently Google Fonts + jsdelivr CDN for pdf-parse/SDK).
-- [ ] Add the original PDFs to `uploads/` (see §9) or repoint the "Original PDF" links to document storage.
-- [ ] Provide the Total Experience Center report URL → set it in `home.js` (`computePortals`, TEC entry: fill `href`, restore `external: true`); the card button re-enables automatically.
+## 5. Deploy
 
-## 9. Known gaps / backlog
+The site is a folder of static files. Deploy the repository root to any static host.
 
-| Item | Where | Note |
-|---|---|---|
-| TEC portal link | `home.js` | Removed on purpose; business will supply the URL |
-| `uploads/*.pdf` | repo | Original PDFs exist in the Claude Design project but binaries were not ported; links 404 until added |
-| Admin auth | `admin-upload.html` | None (prototype) |
-| Server persistence | all pages | localStorage only (§4) |
-| GitHub Pages enablement | repo settings | One manual step (§7 Option B) |
-| Legacy branch | `claude/almansaa-dc-html-3jtew9` | Stale (points at the first commit); safe to delete |
+- **GitHub Pages (already configured):** `.github/workflows/pages.yml` publishes on
+  every push to the working branch. Live at the demo URL above.
+- **Any web server / CDN / object storage:** copy the repo root (excluding
+  `node_modules/`, `.git/`, `api/`) to the web root. No server-side runtime needed.
+- **PWA requirement:** installability and offline need the site served over **HTTPS**
+  (any real domain / GitHub Pages already is; `localhost` also works for testing).
+- **Service-worker cache:** after deploying an update, bump `VERSION` in `sw.js`
+  (e.g. `"v1"` -> `"v2"`) so returning visitors pick up the new files immediately.
+- `vercel.json` + `api/extract.js` are only needed if you deploy the optional
+  extraction API on Vercel (see section 8). For a pure static host, ignore them.
 
-## 10. Verification done (all headless-Chromium tested)
+## 6. Updating the weekly report data (the main operational task)
 
-- Split correctness: 68 CSS + 46 ministry + 1 flagged = 115, no duplicates; totals computed dynamically.
-- All portals: search, combined-filters button, per-filter behavior, reset, expand/collapse, scroll-spy nav, week selector.
-- EN↔AR toggle with RTL on every page, persisted across pages.
-- Mobile (390px): stacked cards, collapsed filters, no horizontal scroll.
-- Admin: publish (with/without extraction), validation errors, reprocess, delete; extraction tiers 2 & 3 (server function unit-tested; browser path integration-tested with stubs); uploaded demand week feeds both portals correctly split.
+All report content lives in **`reports-data.js`** — one structured JavaScript module,
+no database. Editing it is how a new week is published. The three portals are
+*derived views* of this one file, so you never edit the portal pages.
 
-## 11. Source design
+### 6.1 Project & Demand (Ministry + CSS portals)
 
-The UI implements the Claude Design project "# Executive Report Web Platform" (claude.ai/design, project `13e0dd3b-7f18-4ac4-81b6-1b02c8e80a76`) — `Home.dc.html`, `Project Demand Report.dc.html`, `WGS Weekly Report.dc.html`, `Admin Upload.dc.html`, `Report Viewer.dc.html`. Visual language: "Warm Paper" theme (CSS custom properties in `reports-data.js#themes`), Space Grotesk / IBM Plex Sans (+ Arabic).
+Both portals read `demandReport`. Each item is created with the helper:
+
+```js
+P(name, entity, status, updates, next, goLive, outcome)
+```
+
+- `name` — project/demand title (string)
+- `entity` — Entity / Sector, e.g. `"CSS"`, `"PMO"`, `"WGS"`, `"GSOC"` … (drives routing)
+- `status` — e.g. `"On Track"`, `"In Progress"`, `"Live"`, `"On Hold"`, `"Not active"`, `"Delayed by Business"` …
+- `updates` — array of "Status & Updates" bullet strings (`[]` if none)
+- `next` — array of "Next Steps" bullet strings (`[]` if none)
+- `goLive` — go-live date/label, e.g. `"3 Aug 2026"`, `"Live"`, `"TBD — …"`
+- `outcome` — the "Project Outcome" text (omit or `""` if none)
+
+Items are grouped by **Project Manager** using the group `label` inside each section:
+
+```js
+{ id: "projects", num: "01", title: "Projects", groups: [
+  { label: "Banan", items: [ P("…", "CSS", "On Track", [], [], "3 Aug 2026", "…"), … ] },
+  { label: "Noura", items: [ … ] },
+] }
+```
+
+**Routing rule (portal assignment):** `CSS` -> CSS portal; **every other** entity ->
+Ministry portal. Nothing is dropped or auto-flagged. See `isCssEntity` /
+`isMinistryEntity` / `splitDemand` near the bottom of `reports-data.js`.
+
+**All totals are computed from the data at render time — never hard-code counts.**
+The overview "Total Projects" card counts the *active* portfolio (every status except
+`On Hold` and `Not active`); "Live" counts items in production. Change this logic in
+`pd-report.js` (`statDefs`) if the definition of "active" changes.
+
+To publish a new P&D week: replace the `demandReport` object (id/date/subtitle/summary/
+sections), drop the new PDF into `uploads/project-demand-status-report.pdf`, and add
+Arabic strings for any new text to `translations-ar.js` (see section 7).
+
+### 6.2 WGS Weekly Status
+
+Read from `wgsReport` (meetings, workstream, `salesforce` = the deep-dive block,
+decisions, risks, actions, glance stats). Section labels that are specific to a given
+week (glance labels, workstream/deep-dive titles) live in the `I18N` object in
+`wgs-report.js`; update them alongside the data.
+
+## 7. Bilingual (English / Arabic + RTL)
+
+- The language toggle stores the choice in `localStorage` (`dtLang`). The whole UI,
+  including `dir="rtl"`, switches live.
+- **`translations-ar.js`** holds the Arabic dictionary, **keyed by the exact English
+  source string**. Any English text in `reports-data.js` that should appear in Arabic
+  must have a matching entry, otherwise it falls back to English.
+- By design, **product/system names, acronyms (SOW, BRD, UAT, UAE Pass, Oracle …) and
+  people's names stay in English** in both languages.
+- After adding/editing report content, add the new strings to `translations-ar.js`.
+  (Statuses, types and dates have their own maps: `STATUS_AR`, `TYPE_AR`, `arDate`.)
+
+## 8. PDF -> content extraction (optional)
+
+Editing `reports-data.js` by hand is the reliable path and needs no AI. For
+self-service uploads, `admin-upload.html` can turn a PDF into report content. Because
+arbitrary PDFs need AI to parse, extraction has three fallbacks (in `admin.js`):
+
+1. **Claude Design runtime** (`window.claude.complete`) — only when hosted inside that runtime.
+2. **`POST api/extract`** — the Vercel-style serverless function in `api/extract.js`
+   (needs `ANTHROPIC_API_KEY` set server-side).
+3. **Direct from the browser** — using an Anthropic API key the admin pastes into the
+   "Extraction settings" box (stored only in their browser, `localStorage: dtAnthropicKey`).
+
+On a **pure static host with none of the above**, the admin page still stores the PDF
+(reachable via the viewer) but cannot auto-extract structured content — publish that
+week by editing `reports-data.js` instead. Uploaded weeks are stored per-browser in
+`localStorage` (`dtWeeks`); they are **not** shared between users or devices. For a
+shared, multi-user publishing flow, back these operations with a small API + database
+(the data shapes in `reports-data.js` map 1:1 to table rows).
+
+## 9. Theming
+
+Colours are CSS custom properties. The active theme (currently **Royal Navy**,
+accent `#1E4E8C`) is defined in three places that must stay in sync:
+`reports-data.js` (`themes` — applied at runtime and the source of truth),
+`report.css` `:root`, and the inline `:root` in `index.html`. The PWA colours live in
+`manifest.webmanifest` (`theme_color`/`background_color`), the `theme-color` meta tag
+on every page, and the app icons under `icons/`. Semantic status colours
+(green/blue/amber for On Track, In Progress, Pending, Live) are intentionally separate
+from the accent and defined in `statusColors` / `darkStatusColors` in `reports-data.js`.
+
+## 10. Accessibility & support
+
+Responsive/mobile-first, RTL-aware, keyboard-focusable, sticky report header with a
+horizontally-scrolling section nav on phones. Targets current evergreen browsers
+(Chrome/Edge, Safari, Firefox). Google Fonts are loaded from their CDN with system-font
+fallbacks; if your hosting blocks external CDNs, self-host the two font families and
+update the `<link>` tags.
+
+## 11. Pending / open items
+
+- **Total Experience Center portal** — hidden (`HIDDEN_PORTALS` in `home.js`).
+  To enable it, provide its destination URL and set the TEC card `href`.
+- **Weekly history** — the Project & Demand report keeps one historical snapshot
+  (`demandReportPrev`) selectable from the report's week dropdown. A full multi-week
+  archive would be a backend feature.
+- **Shared publishing** — see section 8; today uploads are per-browser only.
+
+## 12. First steps for the dev team
+
+1. Clone the repo, run `python3 -m http.server`, open the site, click through all
+   portals in EN and AR.
+2. Read `reports-data.js` top-to-bottom — it is the whole content/data model.
+3. Do a trial weekly update: edit one `P(...)` item, add its Arabic string, reload.
+4. Confirm the GitHub Pages deploy (or wire your own static host) and, for PWA, that
+   the site is served over HTTPS.
