@@ -55,18 +55,11 @@ const I18N = {
 };
 
 // Portal cards hidden from the landing grid for now. Remove a key to show it
-// again (e.g. re-enable "wgs" and "tec" when those portals go live). A hidden
-// portal is also kept out of the weekly archive and global search so it is not
-// reachable while its card is off.
+// again (e.g. re-enable "tec" when that portal goes live).
 const HIDDEN_PORTALS = ["tec"];
-const wgsHidden = HIDDEN_PORTALS.includes("wgs");
-// A report link that belongs to a currently hidden portal (only WGS has an
-// internal report page; TEC is an external card with no archive/search entry).
-const isHiddenReport = (href) => wgsHidden && typeof href === "string" && href.startsWith(m.wgsReport.href);
 
 const state = {
   lang: localStorage.getItem("dtLang") || "en",
-  aq: "",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -161,35 +154,6 @@ function computePortals() {
   }));
 }
 
-function computeWeeks() {
-  const aql = state.aq.trim().toLowerCase();
-  const uploaded = storedWeeks().map((u) => ({
-    week: u.week,
-    date: u.date,
-    // A demand upload feeds both Project & Demand portals, so list both links.
-    reports:
-      u.type === "demand" && u.data
-        ? [
-            { title: L().ministryTitle, href: uploadHref(u, m.MINISTRY_DEMAND_HREF), pdf: u.pdfData || "#" },
-            { title: L().cssTitle, href: uploadHref(u, m.CSS_DEMAND_HREF), pdf: u.pdfData || "#" },
-          ]
-        : [{ title: u.title, href: uploadHref(u), pdf: u.pdfData || "#" }],
-  }));
-  // Show only the current (newest) week in the archive.
-  return [...uploaded, ...m.archive]
-    .slice(0, 1)
-    .filter((w) => !aql || (w.week + " " + w.date).toLowerCase().includes(aql))
-    // Drop report links for hidden portals; drop a week left with no reports.
-    .map((w) => ({ ...w, reports: w.reports.filter((r) => !isHiddenReport(r.href)) }))
-    .filter((w) => w.reports.length > 0)
-    .map((w) => ({
-      ...w,
-      week: trDate(w.week),
-      date: trDate(w.date),
-      reports: w.reports.map((r) => ({ ...r, title: tr(r.title) })),
-    }));
-}
-
 function renderStatic() {
   const l = L();
   document.documentElement.lang = state.lang;
@@ -201,9 +165,6 @@ function renderStatic() {
   $("h1a").textContent = l.h1a;
   $("h1b").textContent = l.h1b;
   $("taglineText").textContent = l.tagline;
-  $("archiveTitle").textContent = l.archive;
-  $("archiveInput").placeholder = l.archivePh;
-  $("noWeeksNote").textContent = l.noWeeks;
   $("footerText").textContent = l.footer;
 }
 
@@ -228,46 +189,15 @@ function renderReports() {
     .join("");
 }
 
-function renderArchive() {
-  const weeks = computeWeeks();
-  $("noWeeksNote").hidden = weeks.length > 0;
-  $("weeksList").innerHTML = weeks
-    .map(
-      (w) => `<div class="week-card">
-        <div class="week-head">
-          <span class="week-name">${esc(w.week)}</span>
-          <span class="week-date">${esc(L().issued)} ${esc(w.date)}</span>
-        </div>
-        <div class="week-reports">
-          ${w.reports
-            .map(
-              (r) => `<div class="week-report-row">
-                <a class="report-link" href="${esc(r.href)}">${esc(r.title)}</a>
-                ${r.pdf && r.pdf !== "#" ? `<a class="pdf-link" href="${esc(r.pdf)}" download>PDF ↓</a>` : ""}
-              </div>`
-            )
-            .join("")}
-        </div>
-      </div>`
-    )
-    .join("");
-}
-
 function render() {
   renderStatic();
   renderReports();
-  renderArchive();
 }
 
 $("langBtn").addEventListener("click", () => {
   state.lang = isAr() ? "en" : "ar";
   localStorage.setItem("dtLang", state.lang);
   render();
-});
-
-$("archiveInput").addEventListener("input", (e) => {
-  state.aq = e.target.value;
-  renderArchive();
 });
 
 render();
