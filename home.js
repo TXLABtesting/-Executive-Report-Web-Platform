@@ -161,6 +161,7 @@ function renderStatic() {
   document.title = l.siteTitle;
   $("headerMinistry").textContent = l.ministry;
   $("headerSiteTitle").textContent = l.siteTitle;
+  $("adminLink").textContent = l.admin;
   $("langBtn").textContent = isAr() ? "English" : "العربية";
   $("h1a").textContent = l.h1a;
   $("h1b").textContent = l.h1b;
