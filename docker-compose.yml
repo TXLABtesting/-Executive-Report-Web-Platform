@@ -1,0 +1,60 @@
+name: exec-reports
+
+services:
+  # ---- Web tier (ready today): static site served by a hardened nginx ----
+  web:
+    build: .
+    image: exec-reports-web:latest
+    container_name: exec-reports-web
+    restart: unless-stopped
+    # Bind to localhost only; the internal reverse proxy (TLS + SSO) sits in front.
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    security_opt:
+      - "no-new-privileges:true"
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ---- OPTIONAL shared-publishing backend with a PERSISTENT database ----
+  # The API service is TO BE BUILT; the database + persistent volume can be
+  # provisioned now so IT can validate storage, backup and restore.
+  # Enable with:  docker compose --profile full up -d
+  db:
+    image: postgres:16-alpine
+    container_name: exec-reports-db
+    restart: unless-stopped
+    profiles: ["full"]
+    environment:
+      POSTGRES_DB: exec_reports
+      POSTGRES_USER: exec_reports
+      # Placeholder — in production supply via Docker secrets / vault, not plain env.
+      POSTGRES_PASSWORD: "change-me-in-production"
+    volumes:
+      - db-data:/var/lib/postgresql/data          # <-- persistent database storage
+    security_opt:
+      - "no-new-privileges:true"
+
+  # api:                                           # publishing / extraction service (to build)
+  #   build: ./api-service
+  #   container_name: exec-reports-api
+  #   restart: unless-stopped
+  #   profiles: ["full"]
+  #   environment:
+  #     DATABASE_URL: "postgres://exec_reports@db:5432/exec_reports"
+  #     ANTHROPIC_API_KEY_FILE: /run/secrets/anthropic_key   # server-side only
+  #   volumes:
+  #     - uploads-data:/app/uploads                # <-- persistent uploaded PDFs
+  #   depends_on: [db]
+
+volumes:
+  db-data:        # survives container restarts, image upgrades and redeploys
+  uploads-data:   # persistent storage for uploaded source PDFs (used by the api tier)

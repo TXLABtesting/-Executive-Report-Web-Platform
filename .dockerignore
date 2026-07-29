@@ -1,0 +1,12 @@
+# Keep the image to the static site only.
+.git
+.github
+node_modules
+api
+*.md
+vercel.json
+package.json
+package-lock.json
+Dockerfile
+docker-compose.yml
+.dockerignore
