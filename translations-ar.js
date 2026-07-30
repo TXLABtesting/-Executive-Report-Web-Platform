@@ -36,6 +36,7 @@ export const AR = {
   "Digital Transformation Department": "إدارة التحول الرقمي",
   "WGS Digital Transformation 2027 — Internal Status Update": "التحول الرقمي WGS 2027 — تحديث الحالة الداخلي",
   "Weekly Update · Friday, 17 July 2026": "تحديث أسبوعي · الجمعة 17 يوليو 2026",
+  "Weekly Update · Friday, 31 July 2026": "تحديث أسبوعي · الجمعة 31 يوليو 2026",
   "7 sessions completed this week across Salesforce, Evento, Community Portal and Program Portal. Salesforce onboarding started — PM assigned, kickoff targeted for late next week. 3 medium risks tracked; 6 action items in motion.": "اكتملت 7 جلسات هذا الأسبوع شملت Salesforce وEvento وبوابتي Community Portal وProgram Portal. بدأت تهيئة Salesforce — تم تعيين PM والانطلاقة مستهدفة أواخر الأسبوع المقبل. تُتابَع 3 مخاطر متوسطة و6 بنود عمل قيد التنفيذ.",
   "Portfolio of 113 items — 79 projects & enhancements, 34 demands, 44 live in production — across 13 entities / sectors. Near-term go-lives: MOHAP Sick Leave Integration (22 July), Vendor Management – NER Enhancement (23 July), E-Cabinet System 2.0, MOCASmart Release 5 and Events Calendar (31 July).": "محفظة من 113 عنصرًا — 79 مشروعًا وتحسينًا، و34 طلبًا، و44 قيد التشغيل الفعلي — عبر 13 جهة/قطاعًا. إطلاقات قريبة: MOHAP Sick Leave Integration ‏(22 يوليو)، وVendor Management – NER Enhancement ‏(23 يوليو)، وE-Cabinet System 2.0 وMOCASmart Release 5 وEvents Calendar ‏(31 يوليو).",
   "Started": "بدأت",

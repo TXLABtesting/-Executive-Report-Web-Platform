@@ -205,7 +205,6 @@ function build() {
         </div>
       </div>
       <div class="hero-actions no-print">
-        <a class="btn-primary" href="${esc(R.pdf)}" download>${esc(l.downloadPdf)}</a>
         <select id="weekSelect" class="week-select" aria-label="Select week">
           ${weekOpts.map((w) => `<option value="${esc(w.v)}"${w.v === curWeek ? " selected" : ""}>${esc(w.label)}</option>`).join("")}
         </select>

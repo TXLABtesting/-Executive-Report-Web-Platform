@@ -4,7 +4,7 @@
 export const site = {
   org: "Ministry of Cabinet Affairs",
   dept: "Digital Transformation Department",
-  lastUpdated: "29 July 2026",
+  lastUpdated: "31 July 2026",
 };
 
 export const wgsReport = {
@@ -121,14 +121,14 @@ export const wgsReport = {
 const P = (name, entity, status, updates, next, goLive, outcome) => ({ name, entity, status, updates, next, goLive, outcome: outcome || "" });
 
 export const demandReport = {
-  id: "demand-2026-07-29",
+  id: "demand-2026-07-31",
   href: "ministry-project-demand.html",
   pdf: "uploads/project-demand-status-report.pdf",
   title: "Project & Demand Status Report",
-  subtitle: "Weekly Update · Wednesday, 29 July 2026",
+  subtitle: "Weekly Update · Friday, 31 July 2026",
   org: "Ministry of Cabinet Affairs",
   dept: "Digital Transformation Department · Confidential",
-  date: "29 July 2026",
+  date: "31 July 2026",
   overallStatus: "In Progress",
   summary: "Portfolio of 86 items — 70 projects & enhancements, 16 demands, 33 live in production — across entities / sectors. Near-term go-lives: UAE GLP Website Revamp, Events Calendar (MOCASmart) and Release 5 (31 July), Organization Structure (3 Aug), Org Structure (31 Aug), Government Missions (1 Sep).",
   stats: [
