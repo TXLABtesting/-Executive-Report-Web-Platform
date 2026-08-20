@@ -76,6 +76,10 @@ if (weekId) {
       date: w.date,
       pdf: w.pdfData || R.pdf,
     };
+  } else {
+    // Built-in historical week (previous report snapshot).
+    const hist = m.findWgsReport(weekId);
+    if (hist) R = hist;
   }
 }
 
@@ -158,15 +162,15 @@ function build() {
   document.title = l.reportName;
 
   const uploaded = storedWeeks("wgs").filter((x) => x.data);
-  const baseOpts = m.archive.map((w) => {
-    const r = w.reports.find((x) => x.title === "WGS Weekly Status Report") || w.reports[0];
-    return { v: r.href, label: trD(w.week) + " · " + trD(w.date) };
-  });
+  const builtinOpts = [m.wgsReport, ...m.wgsHistory].map((r) => ({
+    v: r.id === m.wgsReport.id ? SELF : SELF + "?week=" + r.id,
+    label: trD(r.date),
+  }));
   const weekOpts = [
     ...uploaded.map((w) => ({ v: SELF + "?week=" + w.id, label: trD(w.week) + " · " + trD(w.date) })),
-    ...baseOpts,
+    ...builtinOpts,
   ];
-  const curWeek = weekId ? SELF + "?week=" + weekId : (baseOpts[0] ? baseOpts[0].v : "");
+  const curWeek = weekId ? SELF + "?week=" + weekId : SELF;
 
   const navItems = [
     { id: "glance", label: l.navGlance }, { id: "meetings", label: l.navMeetings },
@@ -179,7 +183,7 @@ function build() {
   const risks = R.risks.map((r) => ({ ...r, b: badge(r.level) }));
   const pending = R.actions.filter((a) => a.status === "Pending");
   const timeline = R.workstream.timeline.map((x) => ({ ...x, b: badge(x.status) }));
-  const wsHead = overridden ? l.wsPrefix + tr(R.workstream.title || "") : l.wsT;
+  const wsHead = R.workstream.title ? l.wsPrefix + tr(R.workstream.title) : l.wsT;
 
   document.getElementById("app").innerHTML = `
   <header class="report-header">
@@ -214,15 +218,15 @@ function build() {
     <section id="glance" aria-label="Programme at a glance">
       <h2 class="section-title">${esc(l.glanceT)}</h2>
       <div class="glance-grid">
-        <div class="glance-hl"><span class="n">${esc(gs[0] ? tr(gs[0].n) : "")}</span><span class="glance-lbl">${esc(overridden ? (gs[0] ? tr(gs[0].label) : "") : l.sessionsHeld)}</span></div>
-        <div class="glance-card"><span class="n">${esc(gs[1] ? tr(gs[1].n) : "")}</span><span class="glance-lbl">${esc(overridden ? (gs[1] ? tr(gs[1].label) : "") : l.sfOnboarding)}</span></div>
+        <div class="glance-hl"><span class="n">${esc(gs[0] ? tr(gs[0].n) : "")}</span><span class="glance-lbl">${esc(gs[0] && gs[0].label ? tr(gs[0].label) : l.sessionsHeld)}</span></div>
+        <div class="glance-card"><span class="n">${esc(gs[1] ? tr(gs[1].n) : "")}</span><span class="glance-lbl">${esc(gs[1] && gs[1].label ? tr(gs[1].label) : l.sfOnboarding)}</span></div>
       </div>
     </section>
 
     <section id="meetings" aria-label="Meetings held">
       <div class="section-head">
         <h2 class="section-title">${esc(l.meetingsT)} — ${esc(trD(R.weekOf))}</h2>
-        ${overridden ? "" : `<span class="section-sub">${esc(l.meetingsSub)}</span>`}
+        <span class="section-sub">${esc(R.meetingsSub ? tr(R.meetingsSub) : l.meetingsSub)}</span>
       </div>
       <div class="chip-row no-print" id="meetingChips" style="margin-top:16px">${meetingChipsHTML()}</div>
       <div id="meetingList"></div>
@@ -260,7 +264,7 @@ function build() {
 
     <section id="salesforce" aria-label="Salesforce integration">
       <div class="section-head">
-        <h2 class="section-title">${esc(l.sfT)}</h2>
+        <h2 class="section-title">${esc(R.salesforce.title ? tr(R.salesforce.title) : l.sfT)}</h2>
         <span class="section-sub">${esc(tr(R.salesforce.context))}</span>
       </div>
       <div class="panel-grid-wide">
@@ -270,14 +274,14 @@ function build() {
         </div>`).join("")}
       </div>
       <div class="sf-summary">
-        <div class="sf-summary-block">
-          <span class="sf-summary-label">${esc(l.sfSharedT)}</span>
+        ${R.salesforce.shared ? `<div class="sf-summary-block">
+          <span class="sf-summary-label">${esc(R.salesforce.sharedLabel ? tr(R.salesforce.sharedLabel) : l.sfSharedT)}</span>
           <span class="sf-summary-text">${esc(tr(R.salesforce.shared))}</span>
-        </div>
-        <div class="sf-summary-block">
-          <span class="sf-summary-label">${esc(l.sfDecT)}</span>
+        </div>` : ""}
+        ${R.salesforce.decisions ? `<div class="sf-summary-block">
+          <span class="sf-summary-label">${esc(R.salesforce.decisionsLabel ? tr(R.salesforce.decisionsLabel) : l.sfDecT)}</span>
           <span class="sf-summary-text">${esc(tr(R.salesforce.decisions))}</span>
-        </div>
+        </div>` : ""}
       </div>
     </section>
 

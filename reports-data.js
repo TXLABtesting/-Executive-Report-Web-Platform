@@ -8,6 +8,266 @@ export const site = {
 };
 
 export const wgsReport = {
+  id: "wgs-2026-08-14",
+  href: "wgs-weekly-status.html",
+  pdf: "uploads/WGS_Weekly_Status_Report_14August.pdf",
+  title: "WGS Weekly Status Report",
+  programme: "Digital Transformation Strategy 2027",
+  subtitle: "WGS Digital Transformation 2027 — Internal Status Update",
+  date: "14 August 2026",
+  weekOf: "Week of 14 August 2026",
+  overallStatus: "In Progress",
+  summary: "7 sessions completed this week (5 Salesforce-related) — Salesforce discovery walkthroughs, integration alignment, Program & Community Portal, and Mobile App & RFID login. MuleSoft three-layer architecture and OAuth 2.0 service-account authentication agreed; Programs & Sessions set as the first integration scope. 3 risks tracked (1 high); 5 action items in motion.",
+  meetingsSub: "7 sessions completed · 5 Salesforce-related · MoMs issued · Actions in progress",
+  glance: {
+    stats: [
+      { n: "7", label: "Sessions Held" },
+      { n: "Underway", label: "Integration Design" },
+    ],
+    covers: [
+      "Meetings Held — 7 Sessions",
+      "Program & Community Portal Progress",
+      "Salesforce Integration — Detailed Design",
+      "Mobile App & RFID Login Progress",
+      "Key Decisions & Risks",
+      "Action Items & Next Steps",
+    ],
+  },
+  meetings: [
+    { num: "01", group: "Salesforce & Integration", title: "Discovery Walkthroughs", badge: "Complete",
+      attendees: "WGS · Salesforce",
+      outcomes: [
+        "Detailed walkthroughs completed across Programs, Sessions, Speakers and Participants",
+        "Existing Salesforce objects, approval rules, sync triggers and external journeys documented",
+        "Program, Session, Speaker, Nomination and Session-Speaker mappings reviewed",
+        "Salesforce confirmed as source of truth for master and reference data",
+      ] },
+    { num: "02", group: "Salesforce & Integration", title: "Integration Alignment", badge: "Complete",
+      attendees: "WGS · Salesforce · TenTwenty",
+      outcomes: [
+        "Program Portal Salesforce API and endpoint alignment completed; MuleSoft three-layer architecture aligned",
+        "Programs and Sessions prioritised as the first integration scope; endpoints consolidated to reduce duplicate APIs",
+        "OAuth 2.0 service-account authentication agreed; separate Salesforce → Portal webhooks agreed by object",
+        "Postman / JSON collections set as the living API spec; endpoint tracker requires final sign-off before build",
+      ] },
+    { num: "03", group: "Program & Community Portal", title: "Program & Community Portal", badge: "Complete",
+      attendees: "WGS · TenTwenty",
+      outcomes: [
+        "Operational Checklist PoC reviewed; top-level approach accepted as a standalone module beside session approvals",
+        "Personas, permissions, moderation, translation, branding, storage, exports and notifications refined",
+        "Community Portal enhancement sheet reviewed; most outstanding questions cleared",
+        "Nomination, companion, travel and payment journeys refined; magic-link + OTP login progressed",
+      ] },
+    { num: "04", group: "Mobile App & RFID Login", title: "Mobile App & RFID Login", badge: "Complete",
+      attendees: "WGS · TenTwenty · Evento",
+      outcomes: [
+        "Mobile App first-draft wireframes reviewed; detailed functional feedback provided",
+        "Program formats, speaker / coordinator journeys, rehearsal, room access and session feedback refined",
+        "RFID badge login reviewed for VIP / VVIP; back-end authentication against Salesforce feasible",
+        "Direct scanning of the existing UHF RFID badge from iOS / Android remains under investigation",
+        "TenTwenty to run a POC and coordinate with the badge producer on SDK / card specifications",
+      ] },
+  ],
+  workstream: {
+    title: "Integration & Platform Readiness",
+    subtitle: "Salesforce discovery progressed into detailed integration design · Program & Community Portal requirements advanced toward implementation",
+    timeline: [
+      { step: 1, phase: "Requirements Gathering", status: "Complete" },
+      { step: 2, phase: "Architecture & Solution Design", status: "In Progress" },
+      { step: 3, phase: "Integration Design", status: "In Progress" },
+      { step: 4, phase: "Development", status: "Upcoming" },
+      { step: 5, phase: "UAT & Go-Live", status: "Not Started" },
+    ],
+    currentStatus: [
+      "Salesforce discovery expanded into detailed Program, Session, Speaker and Participant object mapping",
+      "Salesforce × TenTwenty integration architecture aligned, with MuleSoft handling transformation between systems",
+      "Programs and Sessions confirmed as the first API integration priority",
+      "Operational Checklist PoC approach accepted and moving into Program Portal implementation",
+      "Community Portal requirements refined, with most enhancement-sheet questions resolved",
+      "Mobile App first-draft review completed; functional changes issued and RFID login feasibility under investigation",
+    ],
+    openDecisions: [
+      "Final sign-off of the Program / Session endpoint tracker and integration document",
+      "Finalise the Program / Community Portal credential and authentication journey",
+      "Complete the remaining API payloads, mappings and Postman collections",
+    ],
+    nextSteps: [
+      "Sign off the Program / Session scope and endpoint tracker",
+      "Complete Salesforce object / field mappings; provide Postman + OAuth",
+      "Implement Operational Checklist feedback in the Program Portal",
+      "Complete the remaining Community Portal enhancement items",
+      "Confirm the outstanding Community Portal magic-link + OTP technical implementation",
+      "Confirm RFID badge-login feasibility following the TenTwenty POC",
+      "Revise the Mobile App wireframes; run the RFID badge-login POC",
+      "Start recurring Salesforce / TenTwenty technical stand-ups",
+    ],
+  },
+  salesforce: {
+    title: "Salesforce & Integration — Current Status Update",
+    context: "August 2026 · Discovery → Integration Design · MOCA / WGS × Salesforce × TenTwenty",
+    blocks: [
+      { title: "Discovery", body: "Program Portal discovery substantially progressed. Detailed walkthroughs completed across Programs, Sessions, Speakers and Participants, including existing approval and sync logic." },
+      { title: "Object & Data Mapping", body: "Core relationships understood: Program → Event, Session → Session, Speaker → Speaker, Attendee → Nomination, Session / Speaker → Session Speaker. Salesforce remains the source of truth for master data." },
+      { title: "Integration Architecture", body: "MuleSoft three-layer Experience / Process / System API model confirmed. Transformation occurs in MuleSoft, allowing TenTwenty and Salesforce to retain their own data models. CloudHub (EU) for the current event, on-prem hybrid later." },
+      { title: "API Design", body: "Programs and Sessions prioritised. Endpoints consolidated into upsert, full-extract and event-driven sync patterns, moving away from the current scheduler-based model. Separate webhooks created by object." },
+      { title: "Authentication", body: "System-to-system authentication defined: an OAuth 2.0 service-account model is agreed for inbound APIs. Participant authentication and portal login remain separate user-level flows." },
+    ],
+    shared: "",
+    decisionsLabel: "Next Step",
+    decisions: "Move from discovery into build-ready specifications. Finalise the endpoint tracker, Postman collections, payloads, object mappings and timeline before development begins.",
+  },
+  decisions: [
+    { item: "Program / Session Integration Scope", detail: "The endpoint tracker and integration document require final WGS / Salesforce / TenTwenty sign-off before implementation.", status: "In Progress" },
+    { item: "Portal Authentication Journey", detail: "The final credential / login journey between the new TenTwenty portal and Salesforce to be completed, including magic-link / OTP behaviour.", status: "In Progress" },
+    { item: "RFID Mobile Login", detail: "Direct mobile scanning of existing UHF RFID badges to be proven through a technical POC; QR / frequency alternatives remain fallback options.", status: "Under Assessment" },
+  ],
+  risks: [
+    { level: "HIGH", risk: "Integration Specification Dependency", mitigation: "MuleSoft development depends on the final endpoint payloads, Postman collections, OAuth details and Salesforce object access. Mitigation: prioritise the Programs / Sessions docs and sign-off; begin mappings as inputs arrive." },
+    { level: "MED", risk: "Authentication Dependency", mitigation: "Portal implementation depends on finalising the Salesforce-linked user authentication and login journey. Mitigation: close the technical design with Salesforce and TenTwenty before build." },
+    { level: "MED", risk: "RFID Technical Feasibility", mitigation: "Badges use UHF RFID while standard phones support NFC / HF, potentially preventing direct scanning. Mitigation: TenTwenty to complete the app-side POC with the GET SDK / card specs; alternatives only if required." },
+  ],
+  actions: [
+    { action: "Finalise and sign off the Program / Session endpoint tracker and integration document", owner: "WGS / Salesforce / TenTwenty", target: "Next Week", status: "In Progress" },
+    { action: "Provide the Programs / Sessions Postman collections, JSON payloads and OAuth service-account details", owner: "TenTwenty", target: "Next Week", status: "In Progress" },
+    { action: "Complete Salesforce object / field mappings and the session-side API review", owner: "Salesforce / MuleSoft", target: "Next Week", status: "In Progress" },
+    { action: "Implement the agreed Operational Checklist feedback in the Program Portal and prepare WGS testing / sign-off", owner: "TenTwenty / WGS", target: "Next Review", status: "In Progress" },
+    { action: "Finalise the Community Portal login approach and remaining enhancement items", owner: "TenTwenty / WGS", target: "Next Week", status: "In Progress" },
+  ],
+};
+
+export const wgsReportAug07 = {
+  id: "wgs-2026-08-07",
+  href: "wgs-weekly-status.html",
+  pdf: "uploads/WGS_Weekly_Status_Report_7August.pdf",
+  title: "WGS Weekly Status Report",
+  programme: "Digital Transformation Strategy 2027",
+  subtitle: "WGS Digital Transformation 2027 — Internal Status Update",
+  date: "7 August 2026",
+  weekOf: "Week of 4–7 August 2026",
+  overallStatus: "In Progress",
+  summary: "4 key workstreams progressed this week — Salesforce discovery, Program Portal integration, Community Portal workflow finalisation, and a mobile application review. Program Portal integration design commenced with Programs & Sessions as the first scope. 3 risks tracked; 10 action items in motion.",
+  meetingsSub: "4 key workstreams progressed · MOMs issued · Actions in progress",
+  glance: {
+    stats: [
+      { n: "13", label: "Sessions Held" },
+      { n: "Progressing", label: "Discovery" },
+    ],
+    covers: [
+      "Meetings Held — 4 Workstreams",
+      "Workstream Progress — Program Portal",
+      "Project Status Update",
+      "Integration Design Commenced",
+      "Key Decisions & Risks",
+      "Action Items & Next Steps",
+    ],
+  },
+  meetings: [
+    { num: "01", group: "Salesforce Discovery & Integration", title: "Salesforce Discovery", badge: "Complete",
+      attendees: "WGS · Salesforce Professional Services",
+      outcomes: [
+        "Discovery continued across Technology, Application, Security & Operations architecture",
+        "Membership, International Delegation, International Organisation and Registration journeys walked through",
+        "Existing WGS ecosystem, business processes and stakeholder journeys reviewed in detail",
+        "Underlying Salesforce implementation examined to support future integration planning",
+      ] },
+    { num: "02", group: "Salesforce Discovery & Integration", title: "Program Portal Integration", badge: "Complete",
+      attendees: "WGS · Salesforce · 1020",
+      outcomes: [
+        "Program Portal integration design commenced; Programs and Sessions agreed as the first scope",
+        "Bi-directional synchronisation approach discussed; API and Webhook architecture reviewed",
+        "Authentication and security approach aligned across systems",
+        "Integration strategy and mapping initiated; shared LLD and field mapping set as the single source of truth",
+      ] },
+    { num: "03", group: "Community Portal & Mobile", title: "Community Portal Workflow Finalisation", badge: "Complete",
+      attendees: "WGS · TenTwenty",
+      outcomes: [
+        "Login approach refined for different attendee categories",
+        "Program and Community Portal approval flows reviewed; workflows nearing sign-off",
+        "Remaining workflow approvals identified before development can begin",
+        "HLD largely complete with only minor updates pending final approval; development prep underway",
+      ] },
+    { num: "04", group: "Community Portal & Mobile", title: "Mobile Application Review", badge: "Complete",
+      attendees: "WGS · TenTwenty",
+      outcomes: [
+        "Mobile wireframes reviewed; unified AI Assistant branding proposed",
+        "Calendar integration discussed; controlled VVIP meeting requests reviewed",
+        "Meeting-room access by category proposed",
+        "MARCOM, AI Office and external stakeholder feedback planned before the next iteration",
+      ] },
+  ],
+  workstream: {
+    title: "All Streams",
+    subtitle: "Discovery, solution design and integration design progressing in parallel this week",
+    timeline: [
+      { step: 1, phase: "Discovery", status: "In Progress" },
+      { step: 2, phase: "Solution Design", status: "In Progress" },
+      { step: 3, phase: "Integration Design", status: "In Progress" },
+      { step: 4, phase: "Development", status: "Upcoming" },
+      { step: 5, phase: "UAT & Go-Live", status: "Upcoming" },
+    ],
+    currentStatus: [
+      "Salesforce discovery continued across technical and functional domains; existing implementation reviewed in detail",
+      "Core stakeholder journeys documented and existing business processes analysed",
+      "Program Portal integration planning commenced; API strategy and bi-directional synchronisation defined",
+      "Initial integration mapping documentation created",
+      "Community Portal workflow validation nearing completion; login approach refined and HLD almost complete",
+      "Mobile wireframes reviewed, AI Assistant branding discussed and user feedback collection initiated",
+    ],
+    openDecisions: [
+      "MuleSoft deployment model — Cloud vs On-Prem",
+      "Final authentication approach to be confirmed",
+      "Remaining workflow approvals pending",
+    ],
+    nextSteps: [
+      "Complete the remaining discovery workshops",
+      "Finalise workflow approvals",
+      "Finalise integration documentation",
+      "Complete HLD updates",
+      "Confirm the final Program Portal integration design",
+      "Finalise the AI Assistant branding",
+      "Begin development following sign-off",
+      "Consolidate the mobile application feedback",
+    ],
+  },
+  salesforce: {
+    title: "Project Status — Overview",
+    context: "August 2026 · Discovery & Integration Design Phase · MOCA / WGS × Salesforce",
+    blocks: [
+      { title: "Discovery", body: "Salesforce discovery progressing successfully across functional and technical domains. Existing ecosystem, business processes and stakeholder journeys reviewed in preparation for implementation." },
+      { title: "Integration", body: "Functional discovery has expanded into technical integration planning. Program Portal integration design has officially begun, with Programs and Sessions as the first scope." },
+      { title: "Architecture & Security", body: "Technology and application architecture reviewed in detail. Authentication and security approach aligned across systems to support integration design." },
+      { title: "Community Portal", body: "Community Portal workflows approaching sign-off. Login approach refined and HLD almost complete, with final workflow approvals pending before development." },
+      { title: "Mobile Application", body: "Mobile wireframes reviewed and unified AI Assistant branding proposed. Stakeholder feedback to be consolidated before the next design iteration." },
+    ],
+    shared: "",
+    decisionsLabel: "Next Step",
+    decisions: "Development preparation activities have started. Complete discovery, finalise workflow approvals and integration mapping, then commence development.",
+  },
+  decisions: [
+    { item: "MuleSoft Deployment Model", detail: "Cloud vs On-Prem deployment model to be selected ahead of implementation.", status: "Pending" },
+    { item: "Authentication Approach", detail: "The final authentication and security model to be confirmed across portals and integrations.", status: "In Progress" },
+    { item: "Workflows & Integration Mappings", detail: "Remaining workflow approvals and the final LLD / field mappings to be signed off; AI Assistant branding to be confirmed.", status: "In Progress" },
+  ],
+  risks: [
+    { level: "MED", risk: "Development Gated by Approvals", mitigation: "Development cannot begin until the final Program and Community Portal workflow approvals are complete." },
+    { level: "MED", risk: "Integration Design Dependency", mitigation: "Integration design depends on completion of the LLD and field mapping documentation." },
+    { level: "LOW", risk: "Mobile Design Blocked", mitigation: "Mobile application design cannot progress until stakeholder feedback is consolidated. Infrastructure decisions are also required before implementation." },
+  ],
+  actions: [
+    { action: "Complete the remaining Salesforce discovery workshops", owner: "Salesforce & WGS", target: "Next Week", status: "In Progress" },
+    { action: "Finalise Community Portal workflows", owner: "TenTwenty & WGS", target: "Next Week", status: "In Progress" },
+    { action: "Approve Program Portal workflows", owner: "WGS", target: "Next Week", status: "Pending" },
+    { action: "Complete API specifications", owner: "Salesforce & 1020", target: "Next Week", status: "In Progress" },
+    { action: "Finalise the integration mapping document (LLD)", owner: "Salesforce & 1020", target: "Next Week", status: "In Progress" },
+    { action: "Confirm the authentication model", owner: "WGS & Salesforce", target: "Next Week", status: "Pending" },
+    { action: "Decide the MuleSoft deployment model", owner: "WGS", target: "Next Week", status: "Pending" },
+    { action: "Begin development after sign-off", owner: "TenTwenty", target: "Upon Approval", status: "Planned" },
+    { action: "Collect and consolidate the mobile application feedback", owner: "WGS & MARCOM", target: "Next Week", status: "In Progress" },
+    { action: "Schedule the next technical integration sessions", owner: "WGS & Salesforce", target: "Next Week", status: "Planned" },
+  ],
+};
+
+export const wgsReportJul31 = {
   id: "wgs-2026-07-31",
   href: "wgs-weekly-status.html",
   pdf: "uploads/WGS_Weekly_Status_Report_31July.pptx",
@@ -18,6 +278,7 @@ export const wgsReport = {
   weekOf: "Week of 31 July 2026",
   overallStatus: "In Progress",
   summary: "8 sessions completed this week — Salesforce kickoff & governance established, Enterprise Architecture & Membership discovery, Program Portal workflow workshops and a mobile app / AI agents review. Salesforce confirmed as System of Record; MuleSoft deployment model (Cloud vs On-Prem) and final workflow sign-off remain open. 3 risks tracked; 9 action items in motion.",
+  meetingsSub: "8 sessions completed · MOMs issued · Actions in progress",
   glance: {
     stats: [
       { n: "8", label: "Sessions Held" },
@@ -96,6 +357,9 @@ export const wgsReport = {
     ],
   },
   salesforce: {
+    title: "Salesforce — Current Status Update",
+    sharedLabel: "Discovery Progress",
+    decisionsLabel: "Next Step",
     context: "31 July 2026 · Discovery & Solution Design · WGS / Salesforce",
     blocks: [
       { title: "Current Status", body: "Discovery phase progressing well following kickoff. Governance framework, Ways of Working and sprint methodology defined, with delivery model and workshop schedule agreed." },
@@ -129,6 +393,14 @@ export const wgsReport = {
     { action: "Confirm RACI and finalise Jira & governance documentation; complete 1020 partner onboarding", owner: "WGS & Salesforce", target: "Next Week", status: "Pending" },
   ],
 };
+
+// Historical WGS weeks, newest first. The live report stays in `wgsReport`;
+// older weeks remain viewable via the week selector (?week=<id>).
+export const wgsHistory = [wgsReportAug07, wgsReportJul31];
+export function findWgsReport(weekId) {
+  if (!weekId || weekId === wgsReport.id) return wgsReport;
+  return wgsHistory.find((r) => r.id === weekId) || null;
+}
 
 const P = (name, entity, status, updates, next, goLive, outcome) => ({ name, entity, status, updates, next, goLive, outcome: outcome || "" });
 
@@ -1935,6 +2207,8 @@ export const statusColors = {
   "Planned":     { bg: "#EEE9F8", fg: "#54398F", dot: "#7B5FC0" },
   "On Hold":     { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
   "Not Started": { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
+  "Upcoming":    { bg: "#EEE9F8", fg: "#54398F", dot: "#7B5FC0" },
+  "Under Assessment": { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
   "TBC":         { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
   "HIGH":        { bg: "#F9E3E1", fg: "#9B2C21", dot: "#C74438" },
   "MED":         { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
@@ -1961,6 +2235,8 @@ export const darkStatusColors = {
   "Planned":     { bg: "rgba(167,139,250,0.16)", fg: "#B8A5FF", dot: "#B8A5FF" },
   "On Hold":     { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
   "Not Started": { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
+  "Upcoming":    { bg: "rgba(167,139,250,0.16)", fg: "#B8A5FF", dot: "#B8A5FF" },
+  "Under Assessment": { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
   "TBC":         { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
   "HIGH":        { bg: "rgba(248,113,113,0.15)", fg: "#F87171", dot: "#F87171" },
   "MED":         { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
