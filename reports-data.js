@@ -4,10 +4,134 @@
 export const site = {
   org: "Ministry of Cabinet Affairs",
   dept: "Digital Transformation Department",
-  lastUpdated: "19 August 2026",
+  lastUpdated: "21 August 2026",
 };
 
 export const wgsReport = {
+  id: "wgs-2026-08-21",
+  href: "wgs-weekly-status.html",
+  pdf: "uploads/WGS_Weekly_Status_Report_21August.pdf",
+  title: "WGS Weekly Status Report",
+  programme: "Digital Transformation Strategy 2027",
+  subtitle: "WGS Digital Transformation 2027 — Internal Status Update",
+  date: "21 August 2026",
+  weekOf: "Week of 21 August 2026",
+  overallStatus: "In Progress",
+  summary: "8 sessions completed this week across four workstreams — Program & Community Portal, Mobile App & Website, Salesforce & Integration, and Security & AI. Delivery planning and development readiness advanced; the Program Portal is prioritised against the Dominican Republic milestone. 3 risks tracked (1 high); 5 action items in motion.",
+  meetingsSub: "8 sessions completed · 4 workstreams progressed · Executive summary",
+  glance: {
+    stats: [
+      { n: "8", label: "Sessions Held" },
+      { n: "Advancing", label: "Delivery & Development Readiness" },
+    ],
+    covers: [
+      "Meetings Held",
+      "Program & Community Portal",
+      "Salesforce & Integration",
+      "Mobile App & Website",
+      "Key Decisions & Risks",
+      "Action Items & Next Steps",
+    ],
+  },
+  meetings: [
+    { num: "01", group: "This Week's Workstreams", title: "Program & Community Portal", badge: "Complete",
+      attendees: "WGS · TenTwenty · MOCA",
+      outcomes: [
+        "Delivery planning and requirements continued toward implementation and validation",
+        "Program Portal remains the immediate priority against the Dominican Republic milestone",
+        "Program Portal APIs prioritised ahead of Community Portal APIs",
+        "Demo / UAT and formal WGS sign-off to be planned",
+      ] },
+    { num: "02", group: "This Week's Workstreams", title: "Mobile App & Website", badge: "Complete",
+      attendees: "WGS · Salesforce · TenTwenty · MOCA",
+      outcomes: [
+        "Latest Mobile App and Website requirements and designs reviewed",
+        "Previously requested Mobile App changes have progressed",
+        "Login, meeting-room booking and media / gallery requirements further refined",
+        "WGS Card integration discussed, with NFC explored as the mobile-compatible direction",
+      ] },
+    { num: "03", group: "This Week's Workstreams", title: "Salesforce & Integration", badge: "Complete",
+      attendees: "WGS · TenTwenty · MOCA",
+      outcomes: [
+        "Salesforce enhancement scope moving from discovery into user stories and detailed design",
+        "Salesforce development environment and DevOps pipeline approach progressed",
+        "Salesforce–TenTwenty integration priorities and delivery planning continued",
+        "Program Portal APIs remain the first integration priority",
+      ] },
+    { num: "04", group: "This Week's Workstreams", title: "Security & AI", badge: "Complete",
+      attendees: "WGS · Security · MOCA · IT",
+      outcomes: [
+        "AI architecture and data flow reviewed with WGS Security",
+        "Most AI capabilities remain on-prem / local",
+        "The external AI model required for voice remains subject to WGS Security approval",
+        "Remaining security items linked to deployment readiness",
+      ] },
+  ],
+  workstream: {
+    title: "Delivery & Development Readiness",
+    subtitle: "Delivery planning and development readiness progressing across all workstreams",
+    timeline: [
+      { step: 1, phase: "Requirements / Discovery", status: "Advanced" },
+      { step: 2, phase: "Solution & Integration Design", status: "In Progress" },
+      { step: 3, phase: "Development Setup", status: "In Progress" },
+      { step: 4, phase: "Development", status: "Upcoming" },
+      { step: 5, phase: "UAT & Go-Live", status: "Upcoming" },
+    ],
+    currentStatus: [
+      "Program Portal prioritised against the upcoming Dominican Republic milestone",
+      "Salesforce enhancement scope progressing into user stories and detailed design",
+      "Salesforce–TenTwenty integration priorities and API sequencing being finalised",
+      "Mobile App / Website requirements progressing toward internal validation",
+      "Security review progressing for AI voice and deployment-related items",
+    ],
+    openDecisions: [
+      "Program & Community Portal: confirm the formal WGS sign-off process",
+      "Mobile App: finalise the attendee login / authentication approach",
+      "WGS Card: confirm whether card technology can move from UHF to NFC for native mobile compatibility",
+    ],
+    nextSteps: [
+      "Confirm the Program Portal demo / UAT and sign-off plan",
+      "Lock the priority APIs and integration delivery dates",
+      "Complete the Salesforce development environment / DevOps setup",
+      "Finalise the Mobile App login and WGS Card approach",
+      "AI Voice: WGS Security approval required for the external voice model",
+      "Close the AI voice security decision",
+    ],
+  },
+  salesforce: {
+    title: "Salesforce & Integration — Current Status Update",
+    context: "21 August 2026 · Discovery → Delivery Definition · MOCA / WGS × Salesforce × TenTwenty",
+    blocks: [
+      { title: "Discovery / Backlog", body: "Moving into delivery definition. Enhancement requirements being converted into prioritised Jira user stories and detailed designs." },
+      { title: "Development Environment", body: "Setup progressing. A new Salesforce development sandbox and WGS DevOps pipeline / access being prepared for development." },
+      { title: "Integration", body: "Program Portal APIs prioritised. Salesforce, MuleSoft and TenTwenty aligning priority integrations and sequencing against the delivery plan." },
+      { title: "API Design", body: "Build-ready specifications progressing. Program / Session APIs, mappings, payloads and Postman specifications continue toward finalisation." },
+      { title: "Delivery Planning", body: "Timeline alignment required. Salesforce / TenTwenty delivery dates to be locked against Program Portal and Dominican Republic priorities." },
+    ],
+    shared: "",
+    decisionsLabel: "Next Step",
+    decisions: "Close scope → Prioritise backlog → Lock integration timeline → Start development.",
+  },
+  decisions: [
+    { item: "Program Portal Demo & Sign-Off", detail: "Confirm the demo / UAT date, validation scope and formal WGS sign-off process.", status: "In Progress" },
+    { item: "Mobile Login & WGS Card", detail: "Finalise Mobile App authentication and confirm whether NFC should replace / augment the current UHF card approach for mobile compatibility.", status: "Under Assessment" },
+    { item: "AI Voice Security", detail: "WGS Security to confirm whether the external model required for voice can be approved.", status: "Planned" },
+  ],
+  risks: [
+    { level: "HIGH", risk: "Delivery Timeline Dependency", mitigation: "Program Portal and integration priorities must be locked against the Dominican Republic milestone. Mitigation: prioritise the critical scope and confirm committed delivery dates." },
+    { level: "MED", risk: "AI Voice Security", mitigation: "Voice functionality depends on security approval for the external model. Mitigation: complete the WGS Security assessment and confirm the approved approach." },
+    { level: "MED", risk: "Mobile Authentication / Card Dependency", mitigation: "Current UHF cards cannot be read directly through standard phone NFC. Mitigation: confirm NFC feasibility, obtain a test card and complete the POC." },
+  ],
+  actions: [
+    { action: "Confirm the Program & Community Portal demo / UAT date, scope and formal sign-off process", owner: "WGS / TenTwenty", target: "Next Week", status: "In Progress" },
+    { action: "Finalise the priority Program Portal APIs and Salesforce / TenTwenty delivery dates", owner: "WGS / Salesforce / TenTwenty", target: "Next Week", status: "In Progress" },
+    { action: "Complete the Salesforce development sandbox and DevOps pipeline setup", owner: "WGS / Salesforce", target: "Before Development", status: "In Progress" },
+    { action: "Finalise the Mobile App login approach and confirm the WGS Card NFC direction / POC", owner: "WGS / TenTwenty", target: "Next Review", status: "In Progress" },
+    { action: "Close the WGS Security assessment for the external AI voice model", owner: "MOCA · Security", target: "TBD", status: "Planned" },
+  ],
+};
+
+export const wgsReportAug14 = {
   id: "wgs-2026-08-14",
   href: "wgs-weekly-status.html",
   pdf: "uploads/WGS_Weekly_Status_Report_14August.pdf",
@@ -396,7 +520,7 @@ export const wgsReportJul31 = {
 
 // Historical WGS weeks, newest first. The live report stays in `wgsReport`;
 // older weeks remain viewable via the week selector (?week=<id>).
-export const wgsHistory = [wgsReportAug07, wgsReportJul31];
+export const wgsHistory = [wgsReportAug14, wgsReportAug07, wgsReportJul31];
 export function findWgsReport(weekId) {
   if (!weekId || weekId === wgsReport.id) return wgsReport;
   return wgsHistory.find((r) => r.id === weekId) || null;
@@ -2209,6 +2333,7 @@ export const statusColors = {
   "Not Started": { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
   "Upcoming":    { bg: "#EEE9F8", fg: "#54398F", dot: "#7B5FC0" },
   "Under Assessment": { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
+  "Advanced":    { bg: "#E3EDF9", fg: "#1D5290", dot: "#3273C4" },
   "TBC":         { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
   "HIGH":        { bg: "#F9E3E1", fg: "#9B2C21", dot: "#C74438" },
   "MED":         { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
@@ -2237,6 +2362,7 @@ export const darkStatusColors = {
   "Not Started": { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
   "Upcoming":    { bg: "rgba(167,139,250,0.16)", fg: "#B8A5FF", dot: "#B8A5FF" },
   "Under Assessment": { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
+  "Advanced":    { bg: "rgba(96,165,250,0.14)", fg: "#6FB1FF", dot: "#6FB1FF" },
   "TBC":         { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
   "HIGH":        { bg: "rgba(248,113,113,0.15)", fg: "#F87171", dot: "#F87171" },
   "MED":         { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
