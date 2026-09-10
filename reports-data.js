@@ -4,7 +4,7 @@
 export const site = {
   org: "Ministry of Cabinet Affairs",
   dept: "Digital Transformation Department",
-  lastUpdated: "9 September 2026",
+  lastUpdated: "10 September 2026",
 };
 
 export const wgsReport = {
