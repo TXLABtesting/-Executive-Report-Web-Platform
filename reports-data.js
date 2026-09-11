@@ -4,10 +4,132 @@
 export const site = {
   org: "Ministry of Cabinet Affairs",
   dept: "Digital Transformation Department",
-  lastUpdated: "10 September 2026",
+  lastUpdated: "11 September 2026",
 };
 
 export const wgsReport = {
+  id: "wgs-2026-09-11",
+  href: "wgs-weekly-status.html",
+  pdf: "uploads/WGS_Weekly_Status_Report_11September.pdf",
+  title: "WGS Weekly Status Report",
+  programme: "Digital Transformation Strategy 2027",
+  subtitle: "WGS Digital Transformation 2027 — Internal Status Update",
+  date: "11 September 2026",
+  weekOf: "Week of 11 September 2026",
+  overallStatus: "In Progress",
+  summary: "10 sessions completed this week across four workstreams — Program Portal, Salesforce & Integration, Website & Digital Experience, and Dominican Republic (DR) Readiness. Delivery and UAT readiness are progressing as work moves from requirements into delivery and validation. The Community Portal API timeline for DR is the key open dependency. 2 risks tracked (1 high); 4 action items in motion.",
+  meetingsSub: "10 sessions completed · 4 workstreams · Delivery & UAT readiness progressing",
+  glance: {
+    stats: [
+      { n: "10", label: "Sessions Held" },
+      { n: "Progressing", label: "Delivery & UAT Readiness" },
+    ],
+    covers: [
+      "Meetings Held",
+      "Program & Community Portal",
+      "Salesforce & Integration",
+      "Digital Platforms & DR Readiness",
+      "Key Decisions & Risks",
+      "Action Items & Next Steps",
+    ],
+  },
+  meetings: [
+    { num: "01", group: "Programme Workstreams", title: "Program Portal", badge: "Complete",
+      attendees: "WGS · TenTwenty · MOCA",
+      outcomes: [
+        "Location management, screen exports and checklist modules reviewed with WGS and operational teams",
+        "Checklist approval gates, notifications, presentation uploads and room / screen requirements aligned",
+        "Hands-on end-to-end testing to follow once the UAT environment is ready",
+        "2027 scope exclusions reviewed, with selected items identified for leadership attention",
+      ] },
+    { num: "02", group: "Programme Workstreams", title: "Salesforce & Integration", badge: "Complete",
+      attendees: "WGS · Salesforce · TenTwenty",
+      outcomes: [
+        "Program Portal Salesforce integration progressed across field mapping, picklists and synchronisation",
+        "Daily sync plus manual synchronisation being developed using mock responses pending real MuleSoft APIs",
+        "Salesforce Priority 1 — International Delegation — under implementation, targeted for 25 September",
+        "Remaining Salesforce modules continue through solution design",
+      ] },
+    { num: "03", group: "Programme Workstreams", title: "Website & Digital Experience", badge: "Complete",
+      attendees: "WGS · 1020",
+      outcomes: [
+        "Website branding reviewed against WGS guidelines",
+        "Primary WGS blue to become more prominent across key digital elements",
+        "WGS emblem / pattern to be incorporated selectively into the website design",
+        "Website design to be revised and returned to WGS for brand review",
+      ] },
+    { num: "04", group: "Programme Workstreams", title: "Dominican Republic Readiness", badge: "Complete",
+      attendees: "WGS · MOCA",
+      outcomes: [
+        "Priority Community Portal modules for DR reviewed with the business team",
+        "DR live-streaming aligned at a high level — two venues and same-day YouTube delivery",
+        "Existing WGS website will be used for DR rather than the new website",
+        "Community Portal API planning started; delivery timeline remains a key DR dependency",
+      ] },
+  ],
+  workstream: {
+    title: "Delivery & UAT Readiness",
+    subtitle: "Moving from requirements into delivery and validation across all workstreams",
+    timeline: [
+      { step: 1, phase: "Requirements & Business Validation", status: "Advanced" },
+      { step: 2, phase: "Solution Design", status: "In Progress" },
+      { step: 3, phase: "Development / Integration", status: "In Progress" },
+      { step: 4, phase: "UAT Readiness", status: "In Progress" },
+      { step: 5, phase: "Production Readiness", status: "In Preparation" },
+    ],
+    currentStatus: [
+      "Program Portal functional validation advanced across location management, checklist, screen exports and presentation workflows",
+      "Salesforce Priority 1 implementation underway; International Delegation targeted for completion by 25 September",
+      "Program Portal Salesforce integration build progressing using mock responses while the MuleSoft APIs are prepared",
+      "Community Portal requirements for DR prioritised, with the Salesforce API scope / timeline now requiring confirmation",
+      "UAT / environment readiness remains an immediate technical focus, with outstanding configuration and access items being closed",
+    ],
+    openDecisions: [
+      "Community Portal Timeline: confirm the Salesforce / MuleSoft API scope and delivery timeline for DR-priority modules",
+      "UAT Environment: close the remaining environment / configuration issues to enable full end-to-end business testing",
+      "2027 Scope / Leadership Items: raise the agreed scope limitations and delivery implications for leadership visibility",
+    ],
+    nextSteps: [
+      "Close the UAT environment and connectivity items and begin end-to-end business run-throughs",
+      "Confirm the Community Portal Phase 2 API scope and delivery timeline for DR",
+      "Continue the Salesforce Priority 1 implementation and remaining module solution designs",
+      "Finalise the Program Portal operational decisions and test key flows end-to-end in UAT",
+      "Program Portal Operational Access: confirm the final access / ownership approach for screen configuration and exports",
+    ],
+  },
+  salesforce: {
+    title: "Salesforce & Integration — Current Status",
+    context: "11 September 2026 · Map → Build → Connect APIs → Test → Deploy",
+    blocks: [
+      { title: "Priority 1 — International Delegation", body: "In implementation. Implementation underway in Sprint 3, with completion targeted by 25 September 2026." },
+      { title: "Remaining Enhancements", body: "In progress. Remaining Salesforce modules continue through solution design and WGS review." },
+      { title: "Program Portal Integration", body: "In progress. TenTwenty is building the daily synchronisation and manual sync functionality using mock responses." },
+      { title: "MuleSoft APIs — Real Integration", body: "Pending. Real API integration will follow once the MuleSoft APIs and remaining mappings are ready." },
+      { title: "Community Portal — Phase 2 / DR", body: "Timeline to confirm. Community Portal API scope review has started; delivery timing needs to be confirmed against the DR requirement." },
+      { title: "Access / Connectivity — Technical Access", body: "In progress. Programme Portal access has progressed; remaining VPN / DevOps connectivity items are being followed up." },
+    ],
+    shared: "",
+    decisionsLabel: "",
+    decisions: "",
+  },
+  decisions: [
+    { item: "Community Portal / DR Timeline", detail: "Confirm the Phase 2 API scope and delivery timing to support the DR event.", status: "Priority" },
+    { item: "2027 Scope Limitations", detail: "Selected out-of-scope / partial-delivery items require visibility — Coffee-Table Book, Post-Show Media Pack and Leadership Brief.", status: "Raised" },
+    { item: "Program Portal Operational Access", detail: "Confirm whether the publicist receives restricted screen-configuration access or WGS retains update control.", status: "Open Decision" },
+  ],
+  risks: [
+    { level: "HIGH", risk: "Community Portal DR Timeline", mitigation: "Community Portal API timing is not yet confirmed, creating a delivery risk against the November DR event. Mitigation: prioritise the DR must-have modules and align the Salesforce / MuleSoft API delivery with TenTwenty." },
+    { level: "MED", risk: "Environment / UAT Readiness", mitigation: "Remaining SSL, service / configuration and access items may delay complete end-to-end UAT. Mitigation: close the outstanding IT / TenTwenty items and verify the UAT environment before business run-throughs." },
+  ],
+  actions: [
+    { action: "Confirm the Community Portal Phase 2 API scope, priorities and delivery timeline for DR", owner: "Salesforce / MuleSoft / WGS / TenTwenty", target: "Next Week", status: "Priority" },
+    { action: "Close the remaining UAT environment, connectivity and configuration items and begin end-to-end business run-throughs", owner: "WGS IT / TenTwenty", target: "Immediate", status: "In Progress" },
+    { action: "Continue the Salesforce Priority 1 implementation and remaining module solution designs", owner: "Salesforce / WGS", target: "25 Sep / Ongoing", status: "In Progress" },
+    { action: "Finalise the Program Portal operational decisions and test the checklist, presentation and screen-export flows end-to-end", owner: "WGS / TenTwenty", target: "On UAT", status: "In Progress" },
+  ],
+};
+
+export const wgsReportSep04 = {
   id: "wgs-2026-09-04",
   href: "wgs-weekly-status.html",
   pdf: "uploads/WGS_Weekly_Status_Report_4September.pdf",
@@ -643,7 +765,7 @@ export const wgsReportJul31 = {
 
 // Historical WGS weeks, newest first. The live report stays in `wgsReport`;
 // older weeks remain viewable via the week selector (?week=<id>).
-export const wgsHistory = [wgsReportAug21, wgsReportAug14, wgsReportAug07, wgsReportJul31];
+export const wgsHistory = [wgsReportSep04, wgsReportAug21, wgsReportAug14, wgsReportAug07, wgsReportJul31];
 export function findWgsReport(weekId) {
   if (!weekId || weekId === wgsReport.id) return wgsReport;
   return wgsHistory.find((r) => r.id === weekId) || null;
@@ -3648,6 +3770,9 @@ export const statusColors = {
   "Advanced":    { bg: "#E3EDF9", fg: "#1D5290", dot: "#3273C4" },
   "Starting":    { bg: "#E3EDF9", fg: "#1D5290", dot: "#3273C4" },
   "Priority":    { bg: "#F9E3E1", fg: "#9B2C21", dot: "#C74438" },
+  "In Preparation": { bg: "#EEE9F8", fg: "#54398F", dot: "#7B5FC0" },
+  "Raised":      { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
+  "Open Decision": { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
   "TBC":         { bg: "#F1EEEA", fg: "#6B6257", dot: "#948A7C" },
   "HIGH":        { bg: "#F9E3E1", fg: "#9B2C21", dot: "#C74438" },
   "MED":         { bg: "#FBF0DC", fg: "#8A5A12", dot: "#D69A2D" },
@@ -3679,6 +3804,9 @@ export const darkStatusColors = {
   "Advanced":    { bg: "rgba(96,165,250,0.14)", fg: "#6FB1FF", dot: "#6FB1FF" },
   "Starting":    { bg: "rgba(96,165,250,0.14)", fg: "#6FB1FF", dot: "#6FB1FF" },
   "Priority":    { bg: "rgba(248,113,113,0.15)", fg: "#F87171", dot: "#F87171" },
+  "In Preparation": { bg: "rgba(167,139,250,0.16)", fg: "#B8A5FF", dot: "#B8A5FF" },
+  "Raised":      { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
+  "Open Decision": { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
   "TBC":         { bg: "rgba(148,163,184,0.12)", fg: "#93A1B0", dot: "#7C8994" },
   "HIGH":        { bg: "rgba(248,113,113,0.15)", fg: "#F87171", dot: "#F87171" },
   "MED":         { bg: "rgba(245,184,74,0.15)", fg: "#F5B84A", dot: "#F5B84A" },
